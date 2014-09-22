@@ -30,55 +30,49 @@ void BTManager::begin() {
 
 	btSerial.print("AT\r");
 	Serial.println("AT");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	btSerial.print("ATZ\r");
 	Serial.println("ATZ");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	btSerial.print("AT+BTNAME=" + BTName + "\r");
 	Serial.println("AT+BTNAME=" + BTName + "\r");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	btSerial.print("AT+BTKEY=1234\r");
 	Serial.println("AT+BTKEY=1234");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	btSerial.print("AT+BTSCAN\r");
 	Serial.println("AT+BTSCAN");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	btSerial.print("AT+BTINFO?0\r");
 	Serial.println("AT+BTINFO?0");
-	Serial.println(readMessage());
-
+	readMessage();
 	delay(1500);
 
 	Serial.println("Sterted Device.");
 }
 
-String BTManager::readMessage() {
-	String str = "";
-	while (1) {
-		int timeoutCount = 0;
+void BTManager::readMessage() {
+	String message = "";
+	char c;
 
-		while (!btSerial.available()) {
-			if (timeoutCount > 50) {
-				return str;
-			}
-			timeoutCount++;
-			delay(100);
-		}
-		str += btSerial.read();
+	while (btSerial.available() == 0) {
 	}
+
+	while(btSerial.available() > 0){
+		c = btSerial.read();
+		message += String(c);
+	}
+
+	Serial.println(message);
 }
+

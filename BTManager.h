@@ -29,7 +29,7 @@ public:
 	bool isConnected();
 	bool isPaired();
 
-	String readMessage();
+	void readMessage();
 	bool writeMessage(String message);
 };
 
