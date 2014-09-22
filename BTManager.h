@@ -8,7 +8,7 @@
 #ifndef BT_MANAGER_H_
 #define BT_MANAGER_H_
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include <SoftwareSerial.h>
 
 #define BT_BAUD 9600
@@ -17,20 +17,15 @@
 
 class BTManager {
 private:
+	static const char esc[] = { 2, 2, 2 };
+	// エスケープシーケンスを定義
 	String BTName;
-	String response;
-
-	bool connectionStatus;
-	bool pairingStatus;
-
 public:
 	BTManager(String BTManager);
-	void begin();
-	bool isConnected();
-	bool isPaired();
 
+	void begin();
 	String readMessage();
-	bool writeMessage(String message);
+	void writeMessage(String message);
 };
 
 #endif /* BT_MANAGER_H_ */

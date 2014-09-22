@@ -8,16 +8,12 @@
 #include "BTManager.h"
 
 SoftwareSerial btSerial(BT_RX, BT_TX);
-char esc[] = { 2, 2, 2 };
+// Bluetooth通信用のシリアル
 
 BTManager::BTManager(String BTName) {
 	this->BTName = BTName;
-	response = "";
-
-	connectionStatus = false;
-	pairingStatus = false;
-
 	btSerial.begin(BT_BAUD);
+	// 引数から名前を決定、btSerialを起動
 }
 
 void BTManager::begin() {
@@ -25,6 +21,7 @@ void BTManager::begin() {
 	delay(1500);
 	btSerial.print(esc);
 	delay(1500);
+	// エスケープを送信してATコマンドが通るようにする（ペアリング中等はこれがないと通らない）
 
 	btSerial.print("AT\r");
 	readMessage();
@@ -34,6 +31,8 @@ void BTManager::begin() {
 	readMessage();
 	delay(1500);
 
+	// AT（ソフトウェア初期化）、ATZ（ハードウェア初期化）
+
 	btSerial.print("AT+BTNAME=" + BTName + "\r");
 	readMessage();
 	delay(1500);
@@ -42,13 +41,13 @@ void BTManager::begin() {
 	readMessage();
 	delay(1500);
 
+	// 名前、パスワードを設定
+
 	btSerial.print("AT+BTSCAN\r");
 	readMessage();
 	delay(1500);
 
-	btSerial.print("AT+BTINFO?0\r");
-	readMessage();
-	delay(1500);
+	// Bluetoothスキャンを開始
 }
 
 String BTManager::readMessage() {
@@ -56,13 +55,21 @@ String BTManager::readMessage() {
 	char c;
 
 	while (btSerial.available() == 0) {
+		// メッセージが送信されるまで待ち
 	}
 
 	while (btSerial.available() > 0) {
 		c = btSerial.read();
 		message += String(c);
+		// メッセージがある場合はmessageに格納
 	}
 
 	return message;
+	// Stringとしてメッセージを返す
+}
+
+void BTManager::writeMessage(String message) {
+	btSerial.print(message);
+	// 受け取ったStringをBluetoothシリアルに書き込む
 }
 
