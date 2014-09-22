@@ -29,8 +29,8 @@ public:
 	bool isConnected();
 	bool isPaired();
 
-	int readMessage(String messageBuf);
-	int writeMessage(String messageBuf);
+	String readMessage();
+	bool writeMessage(String message);
 };
 
 #endif /* BT_MANAGER_H_ */

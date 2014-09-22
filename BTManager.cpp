@@ -50,7 +50,7 @@ void BTManager::begin() {
 
 	btSerial.print("AT+BTSCAN\r");
 	Serial.println("AT+BTSCAN");
-	
+
 	delay(1500);
 
 	btSerial.print("AT+BTINFO?0\r");
@@ -59,4 +59,8 @@ void BTManager::begin() {
 	delay(1500);
 
 	Serial.println("Sterted Device.");
+}
+
+String BTManager::readMessage(){
+
 }
