@@ -17,8 +17,6 @@
 
 class BTManager {
 private:
-	static const char esc[] = { 2, 2, 2 };
-	// エスケープシーケンスを定義
 	String BTName;
 public:
 	BTManager(String BTManager);

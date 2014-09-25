@@ -7,6 +7,9 @@
 
 #include "BTManager.h"
 
+char esc[] = { 2, 2, 2 };
+// エスケープシーケンスを定義
+
 SoftwareSerial btSerial(BT_RX, BT_TX);
 // Bluetooth通信用のシリアル
 
