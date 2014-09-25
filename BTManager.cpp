@@ -48,6 +48,8 @@ void BTManager::init() {
 	readMessage();
 	delay(1500);
 	// Bluetoothスキャンを開始
+
+	btSerial.flush();
 }
 
 String BTManager::readMessage() {
