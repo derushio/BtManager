@@ -23,7 +23,7 @@ private:
 public:
 	BTManager(String BTManager);
 
-	void begin();
+	void init();
 	String readMessage();
 	void writeMessage(String message);
 };

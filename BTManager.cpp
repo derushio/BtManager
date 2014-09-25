@@ -16,7 +16,7 @@ BTManager::BTManager(String BTName) {
 	// 引数から名前を決定、btSerialを起動
 }
 
-void BTManager::begin() {
+void BTManager::init() {
 
 	delay(1500);
 	btSerial.print(esc);
@@ -30,7 +30,6 @@ void BTManager::begin() {
 	btSerial.print("ATZ\r");
 	readMessage();
 	delay(1500);
-
 	// AT（ソフトウェア初期化）、ATZ（ハードウェア初期化）
 
 	btSerial.print("AT+BTNAME=" + BTName + "\r");
@@ -40,13 +39,11 @@ void BTManager::begin() {
 	btSerial.print("AT+BTKEY=1234\r");
 	readMessage();
 	delay(1500);
-
 	// 名前、パスワードを設定
 
 	btSerial.print("AT+BTSCAN\r");
 	readMessage();
 	delay(1500);
-
 	// Bluetoothスキャンを開始
 }
 
