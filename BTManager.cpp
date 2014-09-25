@@ -21,35 +21,34 @@ BTManager::BTManager(String BTName) {
 
 void BTManager::init() {
 
+	btSerial.print("starting");
+
 	delay(1500);
 	btSerial.print(esc);
 	delay(1500);
 	// エスケープを送信してATコマンドが通るようにする（ペアリング中等はこれがないと通らない）
 
 	btSerial.print("AT\r");
-	readMessage();
 	delay(1500);
 
 	btSerial.print("ATZ\r");
-	readMessage();
 	delay(1500);
 	// AT（ソフトウェア初期化）、ATZ（ハードウェア初期化）
 
 	btSerial.print("AT+BTNAME=" + BTName + "\r");
-	readMessage();
 	delay(1500);
 
 	btSerial.print("AT+BTKEY=1234\r");
-	readMessage();
 	delay(1500);
 	// 名前、パスワードを設定
 
 	btSerial.print("AT+BTSCAN\r");
-	readMessage();
 	delay(1500);
 	// Bluetoothスキャンを開始
 
-	btSerial.flush();
+	if(btSerial.available() > 0){
+		btSerial.read();
+	}
 }
 
 String BTManager::readMessage() {
