@@ -46,14 +46,14 @@ void BTManager::init() {
 	delay(1500);
 	// Bluetoothスキャンを開始
 
-	if(btSerial.available() > 0){
-		btSerial.read();
-	}
+	btSerial.flush();
 }
 
 String BTManager::readMessage() {
 	String message = "";
 	char c;
+
+	btSerial.flush();
 
 	while (btSerial.available() == 0) {
 		// メッセージが送信されるまで待ち
