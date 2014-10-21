@@ -53,12 +53,6 @@ String BTManager::readMessage() {
 	String message = "";
 	char c;
 
-	btSerial.flush();
-
-	while (btSerial.available() == 0) {
-		// メッセージが送信されるまで待ち
-	}
-
 	while (btSerial.available() > 0) {
 		c = btSerial.read();
 		message += String(c);
