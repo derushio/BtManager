@@ -5,9 +5,8 @@
 BTManager *btManager;
 
 void setup() {
-  Serial.println("Device Starting...");
-
   Serial.begin(9600);
+  Serial.println("Device Starting...");
 
   btManager = new BTManager("derushio");
   btManager->init();
@@ -76,9 +75,6 @@ void loop() {
         Mouse.move(x, y, s);
 
       }
-
     }
-
   }
 }
-
