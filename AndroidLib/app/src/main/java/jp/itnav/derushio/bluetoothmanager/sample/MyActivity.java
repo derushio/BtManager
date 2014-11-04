@@ -1,4 +1,4 @@
-package jp.itnav.derushio.bluetoothmanager.androidlib;
+package jp.itnav.derushio.bluetoothmanager.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
