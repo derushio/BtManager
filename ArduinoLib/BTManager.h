@@ -17,13 +17,13 @@
 
 class BTManager {
 private:
-	String BTName;
+    String BTName;
 public:
-	BTManager(String BTManager);
+    BTManager(String BTManager);
 
-	void init();
-	String readMessage();
-	void writeMessage(String message);
+    void init();
+    String readMessage();
+    void writeMessage(String message);
 };
 
 #endif /* BT_MANAGER_H_ */

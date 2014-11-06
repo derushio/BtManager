@@ -1,6 +1,6 @@
-Resources/
-.cproject
-.project
-/Default/
-org.eclipse.cdt.codan.core.prefs
-ArduinoLib/Default
+ArduinoLib/build/
+ArduinoLib/hardware/
+ArduinoLib/libraries/
+ArduinoLib/Makefile
+ArduinoLib/nbproject/
+ArduinoLib/.dep.inc
