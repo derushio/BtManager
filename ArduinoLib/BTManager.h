@@ -17,7 +17,8 @@
 
 class BTManager {
 private:
-    String BTName;
+    String btName;
+    String passWord;
 public:
     BTManager(String BTManager);
 

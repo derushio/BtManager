@@ -13,8 +13,9 @@ char esc[] = {2, 2, 2};
 SoftwareSerial btSerial(BT_RX, BT_TX);
 // Bluetooth通信用のシリアル
 
-BTManager::BTManager(String BTName) {
-    this->BTName = BTName;
+BTManager::BTManager(String btName, String passWord) {
+    this->btName = btName;
+    this->passWord = passWord;
     btSerial.begin(BT_BAUD);
     // 引数から名前を決定、btSerialを起動
 }
@@ -35,10 +36,10 @@ void BTManager::init() {
     delay(1500);
     // AT（ソフトウェア初期化）、ATZ（ハードウェア初期化）
 
-    btSerial.print("AT+BTNAME=" + BTName + "\r");
+    btSerial.print("AT+BTNAME=" + btName + "\r");
     delay(1500);
 
-    btSerial.print("AT+BTKEY=1234\r");
+    btSerial.print("AT+BTKEY=" + passWord + "\r");
     delay(1500);
     // 名前、パスワードを設定
 
