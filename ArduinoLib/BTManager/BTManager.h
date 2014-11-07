@@ -20,7 +20,7 @@ private:
     String btName;
     String passWord;
 public:
-    BTManager(String BTManager);
+    BTManager(String btName, String passWord);
 
     void init();
     String readMessage();
