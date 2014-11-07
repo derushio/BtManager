@@ -18,9 +18,9 @@
 class BTManager {
 private:
     String btName;
-    String passWord;
+    String btPassWord;
 public:
-    BTManager(String btName, String passWord);
+    BTManager(String btName, String btPassWord);
 
     void init();
     String readMessage();
