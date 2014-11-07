@@ -1,6 +1,5 @@
-ArduinoLib/build/
-ArduinoLib/arduino/
-ArduinoLib/libraries/
-ArduinoLib/Makefile
-ArduinoLib/nbproject/
-ArduinoLib/.dep.inc
+build/
+ArduinoHeaders/
+Makefile
+nbproject/
+.dep.inc
