@@ -1,5 +1,4 @@
 #include <SoftwareSerial.h>
-
 #include <BTManager.h>
 
 BTManager *btManager;
