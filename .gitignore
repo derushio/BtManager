@@ -1,5 +1,5 @@
 ArduinoLib/build/
-ArduinoLib/hardware/
+ArduinoLib/Arduino/
 ArduinoLib/libraries/
 ArduinoLib/Makefile
 ArduinoLib/nbproject/
