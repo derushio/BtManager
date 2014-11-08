@@ -4,10 +4,12 @@
 BTManager *btManager;
 
 void mouseMove(int xMove, int yMove, int scroll) {
+    // マウスを動かす関数
+    int x, y, s;
     while (xMove != 0 || yMove != 0 || scroll != 0) {
-        int x = 0;
-        int y = 0;
-        int s = 0;
+        x = 0;
+        y = 0;
+        s = 0;
 
         if (xMove > 0) {
             x = 1;
@@ -39,6 +41,7 @@ void mouseMove(int xMove, int yMove, int scroll) {
 }
 
 void mouseAction(int mouseActionFlag) {
+    // マウスを動作させる関数
     switch (mouseActionFlag) {
         case 0:
             break;
@@ -49,6 +52,7 @@ void mouseAction(int mouseActionFlag) {
 }
 
 void controlXYSM(String message) {
+    // XYSMを利用する制御
     int codeLength = 16;
     char code[codeLength];
 
