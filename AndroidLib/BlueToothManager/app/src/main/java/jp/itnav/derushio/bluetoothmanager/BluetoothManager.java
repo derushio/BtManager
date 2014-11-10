@@ -78,7 +78,7 @@ public class BluetoothManager {
 		}
 	}
 
-	public void sendMessage(final String message) {
+	public void writeMessage(final String message) {
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {

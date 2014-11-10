@@ -27,8 +27,8 @@ public class BluetoothManagedActivity extends Activity {
 		bluetoothManager.connectDevice(paredDeviceName);
 	}
 
-	protected void sendMessage(String message) {
-		bluetoothManager.sendMessage(message);
+	protected void writeMessage(String message) {
+		bluetoothManager.writeMessage(message);
 	}
 
 	protected void disConnectDevices() {
