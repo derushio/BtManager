@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
 	compileSdkVersion 21
@@ -9,7 +9,7 @@ android {
 		minSdkVersion 15
 		targetSdkVersion 21
 		versionCode 1
-		versionName "1.0"
+		versionName JAR_VERSION_NAME
 	}
 	buildTypes {
 		release {
@@ -22,3 +22,14 @@ android {
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+task clearJar(type: Delete) {
+	delete 'build/libs/' + JAR_ARTIFACT_ID + '-' + JAR_VERSION_NAME + '.jar'
+}
+task makeJar(type: Copy) {
+	from('build/intermediates/bundles/release/')
+	into('release/')
+	include('classes.jar')
+	rename('classes.jar', JAR_ARTIFACT_ID + '-' + JAR_VERSION_NAME + '.jar')
+}
+makeJar.dependsOn(clearJar, build)

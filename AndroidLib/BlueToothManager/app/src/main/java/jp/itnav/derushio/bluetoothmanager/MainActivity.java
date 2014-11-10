@@ -1,17 +1,35 @@
 package jp.itnav.derushio.bluetoothmanager;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends BluetoothManagedActivity {
+
+	private LinearLayout paredDeviceHolder;
+	private ArrayList<TextView> paredDeviceTextViews;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		paredDeviceHolder = (LinearLayout) findViewById(R.id.paredDeviceHolder);
+		paredDeviceTextViews = new ArrayList<TextView>();
+
+		ArrayList<String> paredDeviceNames = getParedDeviceNames();
+
+		for (String paredDeviceName : paredDeviceNames) {
+			TextView textView = new TextView(this);
+			textView.setText(paredDeviceName);
+			paredDeviceHolder.addView(textView);
+			paredDeviceTextViews.add(textView);
+		}
 	}
 
 
