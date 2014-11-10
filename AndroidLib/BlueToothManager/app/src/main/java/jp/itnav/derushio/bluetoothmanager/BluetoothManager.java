@@ -29,10 +29,10 @@ public class BluetoothManager {
 		int lineIndex = paredDeviceName.indexOf("\n");
 		String address = paredDeviceName.substring(lineIndex + 1, paredDeviceName.length());
 
-		Log.d("address", address);
+		Log.d("target address", address);
 
 		for (BluetoothDevice paredDevice : paredDevices) {
-			Log.d("address", paredDevice.getAddress());
+			Log.d("paredDevice address", paredDevice.getAddress());
 			if (address.equals(paredDevice.getAddress())) {
 				this.bluetoothDevice = paredDevice;
 
