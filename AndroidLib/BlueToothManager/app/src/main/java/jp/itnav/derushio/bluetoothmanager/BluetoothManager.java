@@ -3,6 +3,7 @@ package jp.itnav.derushio.bluetoothmanager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,20 +18,25 @@ import java.util.UUID;
 public class BluetoothManager {
 	private static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-	private static BluetoothAdapter bluetoothAdapter;
-	private static BluetoothSocket bluetoothSocket;
-	private static BluetoothDevice bluetoothDevice;
+	private BluetoothAdapter bluetoothAdapter;
+	private BluetoothSocket bluetoothSocket;
+	private BluetoothDevice bluetoothDevice;
 
 	private InputStream inputStream;
 	private OutputStream outputStream;
 
 	public void connectDevice(String paredDeviceName) {
 		int lineIndex = paredDeviceName.indexOf("\n");
-		String address = paredDeviceName.substring(lineIndex, paredDeviceName.length());
+		String address = paredDeviceName.substring(lineIndex + 1, paredDeviceName.length());
+
+		Log.d("address", address);
 
 		for (BluetoothDevice paredDevice : paredDevices) {
+			Log.d("address", paredDevice.getAddress());
 			if (address.equals(paredDevice.getAddress())) {
-				this.bluetoothDevice = bluetoothDevice;
+				this.bluetoothDevice = paredDevice;
+
+				Log.d("find", "device");
 
 				Thread thread = new Thread(new Runnable() {
 					@Override
@@ -66,6 +72,8 @@ public class BluetoothManager {
 				});
 
 				thread.start();
+				Log.d("ThreadStart", "ThreadStart");
+				return;
 			}
 		}
 	}
@@ -86,10 +94,14 @@ public class BluetoothManager {
 	}
 
 	public void disConnectDevices() {
-		try {
-			bluetoothSocket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (bluetoothSocket != null) {
+			if (bluetoothSocket.isConnected()) {
+				try {
+					bluetoothSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
