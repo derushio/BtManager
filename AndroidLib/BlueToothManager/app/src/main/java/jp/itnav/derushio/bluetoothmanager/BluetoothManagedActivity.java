@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
+	private String targetDeviceName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -19,12 +20,36 @@ public class BluetoothManagedActivity extends Activity {
 		bluetoothManager = new BluetoothManager();
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (targetDeviceName != null) {
+			if (targetDeviceName.equals("")) {
+				connectDevice();
+			}
+		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		disConnectDevices();
+	}
+
 	protected ArrayList<String> getParedDeviceNames() {
 		return bluetoothManager.getParedDeviceNames();
 	}
 
-	protected void connectDevice(String paredDeviceName) {
-		bluetoothManager.connectDevice(paredDeviceName);
+	protected void setTargetDeviceName(String targetDeviceName) {
+		this.targetDeviceName = targetDeviceName;
+	}
+
+	protected String getTargetDeviceName() {
+		return targetDeviceName;
+	}
+
+	protected void connectDevice() {
+		bluetoothManager.connectDevice(targetDeviceName);
 	}
 
 	protected void writeMessage(String message) {
