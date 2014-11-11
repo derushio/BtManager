@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
-	private static String targetDeviceName;
+	private String targetDeviceName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class BluetoothManagedActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		if (targetDeviceName != null) {
-			if (targetDeviceName.equals("")) {
+			if (!targetDeviceName.equals("")) {
 				connectDevice();
 			}
 		}
