@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
-	private String targetDeviceName;
+	private static String targetDeviceName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
