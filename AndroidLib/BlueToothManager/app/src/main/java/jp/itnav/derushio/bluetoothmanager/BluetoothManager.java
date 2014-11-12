@@ -116,6 +116,10 @@ public class BluetoothManager {
 		return paredDeviceNames;
 	}
 
+	public Set<BluetoothDevice> getParedDevices() {
+		return bluetoothAdapter.getBondedDevices();
+	}
+
 	public BluetoothManager() {
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		paredDevices = bluetoothAdapter.getBondedDevices();

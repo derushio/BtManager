@@ -1,9 +1,11 @@
 package jp.itnav.derushio.bluetoothmanager;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Created by derushio on 14/11/10.
@@ -36,10 +38,6 @@ public class BluetoothManagedActivity extends Activity {
 		disConnectDevices();
 	}
 
-	protected ArrayList<String> getParedDeviceNames() {
-		return bluetoothManager.getParedDeviceNames();
-	}
-
 	protected void setTargetDeviceName(String targetDeviceName) {
 		this.targetDeviceName = targetDeviceName;
 	}
@@ -59,4 +57,13 @@ public class BluetoothManagedActivity extends Activity {
 	protected void disConnectDevices() {
 		bluetoothManager.disConnectDevices();
 	}
+
+	protected Set<BluetoothDevice> getParedDevices() {
+		return bluetoothManager.getParedDevices();
+	}
+
+	protected ArrayList<String> getParedDeviceNames() {
+		return bluetoothManager.getParedDeviceNames();
+	}
+
 }
