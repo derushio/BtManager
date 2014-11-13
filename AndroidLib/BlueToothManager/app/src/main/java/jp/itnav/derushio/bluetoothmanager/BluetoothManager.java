@@ -3,7 +3,11 @@ package jp.itnav.derushio.bluetoothmanager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,12 +22,25 @@ import java.util.UUID;
 public class BluetoothManager {
 	private static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+	private Context context;
+
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
 	private BluetoothDevice bluetoothDevice;
 
 	private InputStream inputStream;
 	private OutputStream outputStream;
+
+	private Handler onConnect;
+	private Handler onDisConnect;
+
+	public void setOnConnect(Handler onConnect) {
+		this.onConnect = onConnect;
+	}
+
+	public void setOnDisConnect(Handler onDisConnect) {
+		this.onDisConnect = onDisConnect;
+	}
 
 	public void connectDevice(String paredDeviceName) {
 		int lineIndex = paredDeviceName.indexOf("\n");
@@ -41,9 +58,14 @@ public class BluetoothManager {
 				Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
+
+						Message message = new Message();
+
 						try {
 							bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(SPP_UUID);
 						} catch (IOException e) {
+							message.what = -1;
+							onConnect.sendMessage(message);
 							e.printStackTrace();
 						}
 
@@ -53,12 +75,16 @@ public class BluetoothManager {
 
 						try {
 							bluetoothSocket.connect();
+							message.what = 0;
+							onConnect.sendMessage(message);
 						} catch (IOException e1) {
 							try {
 								bluetoothSocket.close();
 							} catch (IOException e2) {
 								e2.printStackTrace();
 							}
+							message.what = -2;
+							onConnect.sendMessage(message);
 							return;
 						}
 
@@ -69,6 +95,7 @@ public class BluetoothManager {
 							e.printStackTrace();
 						}
 					}
+
 				});
 
 				thread.start();
@@ -96,11 +123,24 @@ public class BluetoothManager {
 	public void disConnectDevices() {
 		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
-				try {
-					bluetoothSocket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Message message = new Message();
+						try {
+							bluetoothSocket.close();
+							message.what = 0;
+							onDisConnect.sendMessage(message);
+						} catch (IOException e) {
+							message.what = -1;
+							onDisConnect.sendMessage(message);
+							e.printStackTrace();
+						}
+
+					}
+				});
+
+				thread.start();
 			}
 		}
 	}
@@ -120,9 +160,48 @@ public class BluetoothManager {
 		return bluetoothAdapter.getBondedDevices();
 	}
 
-	public BluetoothManager() {
+	public BluetoothManager(Context context) {
+		this.context = context;
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		paredDevices = bluetoothAdapter.getBondedDevices();
 		getParedDeviceNames();
+
+		onConnect = new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+
+				switch (msg.what) {
+					case 0:
+						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					case -1:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND SOCKET", Toast.LENGTH_SHORT).show();
+						break;
+					case -2:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					default:
+						break;
+				}
+				return false;
+			}
+		});
+
+		onDisConnect = new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+				switch (msg.what) {
+					case 0:
+						Toast.makeText(BluetoothManager.this.context, "DISCONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					case -1:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					default:
+						break;
+				}
+				return false;
+			}
+		});
 	}
 }

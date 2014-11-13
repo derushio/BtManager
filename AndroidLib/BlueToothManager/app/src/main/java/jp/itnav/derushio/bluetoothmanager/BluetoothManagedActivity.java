@@ -19,7 +19,7 @@ public class BluetoothManagedActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		bluetoothManager = new BluetoothManager();
+		bluetoothManager = new BluetoothManager(this);
 	}
 
 	@Override
