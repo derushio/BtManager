@@ -106,18 +106,20 @@ public class BluetoothManager {
 	}
 
 	public void writeMessage(final String message) {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					outputStream.write(message.getBytes("UTF-8"));
-				} catch (IOException e) {
-					e.printStackTrace();
+		if (bluetoothSocket.isConnected()) {
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						outputStream.write(message.getBytes("UTF-8"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		});
+			});
 
-		thread.start();
+			thread.start();
+		}
 	}
 
 	public void disConnectDevices() {
