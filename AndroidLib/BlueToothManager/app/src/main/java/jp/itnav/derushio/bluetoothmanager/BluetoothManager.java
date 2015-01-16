@@ -105,6 +105,19 @@ public class BluetoothManager {
 		}
 	}
 
+	public void reconnectedDevice() {
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (bluetoothSocket != null) {
+					if (bluetoothSocket.isConnected()) {
+
+					}
+				}
+			}
+		});
+	}
+
 	public void writeMessage(final String message) {
 		if (bluetoothSocket.isConnected()) {
 			Thread thread = new Thread(new Runnable() {
@@ -138,7 +151,6 @@ public class BluetoothManager {
 							onDisConnect.sendMessage(message);
 							e.printStackTrace();
 						}
-
 					}
 				});
 
