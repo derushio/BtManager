@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Set;
@@ -119,20 +120,50 @@ public class BluetoothManager {
 	}
 
 	public void writeMessage(final String message) {
-		if (bluetoothSocket.isConnected()) {
-			Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						outputStream.write(message.getBytes("UTF-8"));
-					} catch (IOException e) {
-						e.printStackTrace();
+		try {
+			if (bluetoothSocket.isConnected()) {
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							outputStream.write(message.getBytes("UTF-8"));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
 
-			thread.start();
+				thread.start();
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
+	}
+
+	public String readMessage() {
+		try {
+			if (bluetoothSocket.isConnected()) {
+				try {
+
+					InputStreamReader reader = new InputStreamReader(inputStream);
+					StringBuilder stringBuilder = new StringBuilder();
+					char[] buffer = new char[1024];
+					int length = 0;
+
+					while (0 <= (length = reader.read(buffer))) {
+						stringBuilder.append(buffer, 0, length);
+					}
+
+					return stringBuilder.toString();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}
+		return "Read Error";
 	}
 
 	public void disConnectDevices() {

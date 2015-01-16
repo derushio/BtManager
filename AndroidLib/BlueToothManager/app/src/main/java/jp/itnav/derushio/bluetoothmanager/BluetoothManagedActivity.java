@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Created by derushio on 14/11/10.
  */
-public class BluetoothManagedActivity extends Activity {
+abstract public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
 	private String targetDeviceName;
@@ -53,6 +53,17 @@ public class BluetoothManagedActivity extends Activity {
 	protected void writeMessage(String message) {
 		bluetoothManager.writeMessage(message);
 	}
+
+	protected void readMessageStart() {
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				onReadMessageFinished(bluetoothManager.readMessage());
+			}
+		});
+	}
+
+	abstract protected void onReadMessageFinished(String message);
 
 	protected void disConnectDevices() {
 		bluetoothManager.disConnectDevices();
