@@ -61,6 +61,8 @@ abstract public class BluetoothManagedActivity extends Activity {
 				onReadMessageFinished(bluetoothManager.readMessage());
 			}
 		});
+
+		thread.run();
 	}
 
 	abstract protected void onReadMessageFinished(String message);

@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -146,15 +147,10 @@ public class BluetoothManager {
 				try {
 
 					InputStreamReader reader = new InputStreamReader(inputStream);
-					StringBuilder stringBuilder = new StringBuilder();
-					char[] buffer = new char[1024];
-					int length = 0;
+					BufferedReader bufferedReader = new BufferedReader(reader);
+					String string = bufferedReader.readLine();
 
-					while (0 <= (length = reader.read(buffer))) {
-						stringBuilder.append(buffer, 0, length);
-					}
-
-					return stringBuilder.toString();
+					return string;
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
