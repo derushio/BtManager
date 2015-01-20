@@ -3,6 +3,8 @@ package jp.itnav.derushio.bluetoothmanager;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -15,11 +17,15 @@ abstract public class BluetoothManagedActivity extends Activity {
 	private BluetoothManager bluetoothManager;
 	private String targetDeviceName;
 
+	private Handler mainLooperHandler;
+	private TimerHandler timerHandler;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		bluetoothManager = new BluetoothManager(this);
+		mainLooperHandler = new Handler();
 	}
 
 	@Override
@@ -35,6 +41,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		timerHandler = null;
 		disConnectDevices();
 	}
 
@@ -54,15 +61,45 @@ abstract public class BluetoothManagedActivity extends Activity {
 		bluetoothManager.writeMessage(message);
 	}
 
-	protected void readMessageStart() {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				onReadMessageFinished(bluetoothManager.readMessage());
-			}
-		});
+	protected void readMessageStart(long delayMilliSec) {
 
-		thread.run();
+		timerHandler = new TimerHandler();
+		timerHandler.sleep(delayMilliSec);
+
+	}
+
+	public class TimerHandler extends Handler {
+		private long delayMilliSec;
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					final String message = bluetoothManager.readMessage();
+
+					mainLooperHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							onReadMessageFinished(message);
+						}
+					});
+				}
+			});
+
+			thread.start();
+
+			if (timerHandler != null) {
+				sleep(delayMilliSec);
+			}
+		}
+
+		public void sleep(long delayMilliSec) {
+			this.delayMilliSec = delayMilliSec;
+			removeMessages(0);
+			sendMessageDelayed(obtainMessage(0), delayMilliSec);
+		}
 	}
 
 	abstract protected void onReadMessageFinished(String message);

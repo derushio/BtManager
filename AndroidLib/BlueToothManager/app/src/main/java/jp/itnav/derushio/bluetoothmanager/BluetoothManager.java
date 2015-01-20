@@ -145,7 +145,6 @@ public class BluetoothManager {
 		try {
 			if (bluetoothSocket.isConnected()) {
 				try {
-
 					InputStreamReader reader = new InputStreamReader(inputStream);
 					BufferedReader bufferedReader = new BufferedReader(reader);
 					String string = bufferedReader.readLine();
