@@ -18,7 +18,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	private String targetDeviceName;
 
 	private Handler mainLooperHandler;
-	private TimerHandler timerHandler;
+	protected SensorTimerHandler sensorTimerHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +39,10 @@ abstract public class BluetoothManagedActivity extends Activity {
 	}
 
 	@Override
-	protected void onStop() {
-		super.onStop();
-		timerHandler = null;
+	protected void onPause() {
+		super.onPause();
+
+		sensorTimerHandler = null;
 		disConnectDevices();
 	}
 
@@ -61,38 +62,29 @@ abstract public class BluetoothManagedActivity extends Activity {
 		bluetoothManager.writeMessage(message);
 	}
 
+	protected ArrayList<String> readMessage() {
+		return bluetoothManager.getMessageMailBox();
+	}
+
 	protected void readMessageStart(long delayMilliSec) {
 
-		timerHandler = new TimerHandler();
-		timerHandler.sleep(delayMilliSec);
+		sensorTimerHandler = new SensorTimerHandler();
+		sensorTimerHandler.sleep(delayMilliSec);
 
 	}
 
-	public class TimerHandler extends Handler {
+	public class SensorTimerHandler extends Handler {
 		private long delayMilliSec;
 
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					final String message = bluetoothManager.readMessage();
 
-					mainLooperHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							onReadMessageFinished(message);
-						}
-					});
-				}
-			});
-
-			thread.start();
-
-			if (timerHandler != null) {
+			if (sensorTimerHandler != null) {
 				sleep(delayMilliSec);
 			}
+
+			bluetoothManager.readMessage();
 		}
 
 		public void sleep(long delayMilliSec) {
@@ -101,8 +93,6 @@ abstract public class BluetoothManagedActivity extends Activity {
 			sendMessageDelayed(obtainMessage(0), delayMilliSec);
 		}
 	}
-
-	abstract protected void onReadMessageFinished(String message);
 
 	protected void disConnectDevices() {
 		bluetoothManager.disConnectDevices();

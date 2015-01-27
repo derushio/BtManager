@@ -36,6 +36,62 @@ public class BluetoothManager {
 	private Handler onConnect;
 	private Handler onDisConnect;
 
+	private ArrayList<String> messageMailBox;
+
+	public BluetoothManager(Context context) {
+		this.context = context;
+		messageMailBox = new ArrayList<String>(100);
+		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		paredDevices = bluetoothAdapter.getBondedDevices();
+		getParedDeviceNames();
+
+		onConnect = new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+
+				switch (msg.what) {
+					case 0:
+						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					case -1:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND SOCKET", Toast.LENGTH_SHORT).show();
+						break;
+					case -2:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					default:
+						break;
+				}
+				return false;
+			}
+		});
+
+		onDisConnect = new Handler(new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+				switch (msg.what) {
+					case 0:
+						Toast.makeText(BluetoothManager.this.context, "DISCONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					case -1:
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						break;
+					default:
+						break;
+				}
+				return false;
+			}
+		});
+	}
+
+	public ArrayList<String> getMessageMailBox() {
+		return messageMailBox;
+	}
+
+	public void setMessageMailBox(ArrayList<String> messageMailBox) {
+		this.messageMailBox = messageMailBox;
+	}
+
 	public void setOnConnect(Handler onConnect) {
 		this.onConnect = onConnect;
 	}
@@ -141,24 +197,29 @@ public class BluetoothManager {
 		}
 	}
 
-	public String readMessage() {
-		try {
+	public void readMessage() {
+		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
-				try {
-					InputStreamReader reader = new InputStreamReader(inputStream);
-					BufferedReader bufferedReader = new BufferedReader(reader);
-					String string = bufferedReader.readLine();
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							InputStreamReader reader = new InputStreamReader(inputStream);
+							BufferedReader bufferedReader = new BufferedReader(reader);
 
-					return string;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+							String message = bufferedReader.readLine();
+							messageMailBox.add(0, message);
+
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+					}
+				});
+
+				thread.start();
 			}
-
-		} catch (NullPointerException e) {
-			e.printStackTrace();
 		}
-		return "Read Error";
 	}
 
 	public void disConnectDevices() {
@@ -198,50 +259,5 @@ public class BluetoothManager {
 
 	public Set<BluetoothDevice> getParedDevices() {
 		return bluetoothAdapter.getBondedDevices();
-	}
-
-	public BluetoothManager(Context context) {
-		this.context = context;
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		paredDevices = bluetoothAdapter.getBondedDevices();
-		getParedDeviceNames();
-
-		onConnect = new Handler(new Handler.Callback() {
-			@Override
-			public boolean handleMessage(Message msg) {
-
-				switch (msg.what) {
-					case 0:
-						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-						break;
-					case -1:
-						Toast.makeText(BluetoothManager.this.context, "NOT FOUND SOCKET", Toast.LENGTH_SHORT).show();
-						break;
-					case -2:
-						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-						break;
-					default:
-						break;
-				}
-				return false;
-			}
-		});
-
-		onDisConnect = new Handler(new Handler.Callback() {
-			@Override
-			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-					case 0:
-						Toast.makeText(BluetoothManager.this.context, "DISCONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-						break;
-					case -1:
-						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
-						break;
-					default:
-						break;
-				}
-				return false;
-			}
-		});
 	}
 }
