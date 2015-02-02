@@ -26,6 +26,7 @@ public class BluetoothManager {
 	// SPP通信のUUID
 
 	private Context context;
+	// Activity情報
 
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
@@ -47,8 +48,11 @@ public class BluetoothManager {
 	public BluetoothManager(Context context) {
 		this.context = context;
 		messageMailBox = new ArrayList<String>(100);
+		// メールボックス容量を100件に
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		// デバイスのデフォルト設定のBluetoothAdapterを使う
 		paredDevices = getParedDevices();
+		// ペアリングされているデバイスを取得
 
 		onConnect = new Handler(new Handler.Callback() {
 			@Override
@@ -74,6 +78,7 @@ public class BluetoothManager {
 				return false;
 			}
 		});
+		// 接続時に何らかのメッセージを出すようにする
 
 		onDisConnect = new Handler(new Handler.Callback() {
 			@Override
@@ -91,19 +96,23 @@ public class BluetoothManager {
 				return false;
 			}
 		});
+		// 切断時に何らかのメッセージを出すようにする
 	}
+	// コンストラクタ
 
 	public Set<BluetoothDevice> getParedDevices() {
 		paredDevices = bluetoothAdapter.getBondedDevices();
 		return paredDevices;
 	}
+	// ペアリングされているデバイスリストを更新したあとに結果を返す
 
-	public boolean isConnectDevice() {
+	public boolean isDeviceConnected() {
 		if (bluetoothSocket != null) {
 			return bluetoothSocket.isConnected();
 		}
 		return false;
 	}
+	// 何らかのデバイスに接続されていたらtrueを返す
 
 	public void connectDevice(String paredDeviceAddress) {
 		Log.d("target address", paredDeviceAddress);
@@ -111,32 +120,41 @@ public class BluetoothManager {
 		for (BluetoothDevice paredDevice : paredDevices) {
 			Log.d("paredDevice address", paredDevice.getAddress());
 			if (paredDeviceAddress.equals(paredDevice.getAddress())) {
+				// デバイスリストにサーチをかけ、ヒットした場合の処理
 				this.bluetoothDevice = paredDevice;
+				// クラス内で制御する対象に設定
 
 				Log.d("find", "device");
+				// logでデバイスを見つけたことを知らせる
 
-				Thread thread = new Thread(new Runnable() {
+				Thread connect = new Thread(new Runnable() {
 					@Override
 					public void run() {
+						// ここからは時間がかかる処理なので、非同期処理で行う
 
 						Message message = new Message();
+						// Handlerに送るメッセージを初期化
 
 						try {
 							bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(SPP_UUID);
 						} catch (IOException e) {
 							message.what = -1;
 							onConnect.sendMessage(message);
+							// エラーｰ1を送る（ソケットが見つからない）
 							e.printStackTrace();
+							return;
 						}
 
 						if (bluetoothAdapter.isDiscovering()) {
 							bluetoothAdapter.cancelDiscovery();
+							// 探索中だったらキャンセルする
 						}
 
 						try {
 							bluetoothSocket.connect();
 							message.what = 0;
 							onConnect.sendMessage(message);
+							// 完了0を送る（接続成功）
 						} catch (IOException e1) {
 							try {
 								bluetoothSocket.close();
@@ -145,12 +163,14 @@ public class BluetoothManager {
 							}
 							message.what = -2;
 							onConnect.sendMessage(message);
+							// エラー-2を送る（デバイスが見つからない）
 							return;
 						}
 
 						try {
 							inputStream = bluetoothSocket.getInputStream();
 							outputStream = bluetoothSocket.getOutputStream();
+							// 送受信用のStreamを設定
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -158,15 +178,18 @@ public class BluetoothManager {
 
 				});
 
-				thread.start();
-				Log.d("ThreadStart", "ThreadStart");
+				connect.start();
+				Log.d("ThreadStart", "Connect");
+				// Threadをスタートする（非同期処理）;
 				return;
 			}
 		}
 		Message message = new Message();
 		message.what = -3;
 		onConnect.sendMessage(message);
+		// エラー-3を送る（そもそもそんなデバイスはペアリングしてない）
 	}
+	// デバイスに接続する
 
 	public void reconnectedDevice() {
 		Thread thread = new Thread(new Runnable() {
@@ -180,60 +203,72 @@ public class BluetoothManager {
 			}
 		});
 	}
+	// デバイスに再接続する
+	// TODO そのうち作ります（未完成）
 
 	public void disConnectDevices() {
 		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
-				Thread thread = new Thread(new Runnable() {
+				Thread disConnect = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						Message message = new Message();
+						// メッセージ初期化
 						try {
 							bluetoothSocket.close();
 							message.what = 0;
 							onDisConnect.sendMessage(message);
+							// 切断成功
 						} catch (IOException e) {
 							message.what = -1;
 							onDisConnect.sendMessage(message);
 							e.printStackTrace();
+							// 切断失敗
 						}
 					}
 				});
 
-				thread.start();
+				disConnect.start();
+				// 非同期処理開始
 			}
 		}
 	}
+	// デバイスから切断する
 
 	public ArrayList<String> getMessageMailBox() {
 		return messageMailBox;
+		// 受信したメッセージ郡を返す。 新しい0<------99古い
 	}
+	// メッセージを受信しているメッセージボックスを取得する
 
 	public void writeMessage(final String message) {
 		try {
 			if (bluetoothSocket.isConnected()) {
-				Thread thread = new Thread(new Runnable() {
+				Thread write = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
 							outputStream.write(message.getBytes("UTF-8"));
+							// OutputStreamを使用し、書き込む
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 					}
 				});
 
-				thread.start();
+				write.start();
+				// 非同期処理スタート
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 		}
 	}
+	// メッセージを送信する
 
 	public void readMessage() {
 		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
-				Thread thread = new Thread(new Runnable() {
+				Thread read = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -242,6 +277,7 @@ public class BluetoothManager {
 
 							String message = bufferedReader.readLine();
 							messageMailBox.add(0, message);
+							// BufferedReaderを使用して1行読み込み、messageMailBoxに突っ込む。
 
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -250,16 +286,33 @@ public class BluetoothManager {
 					}
 				});
 
-				thread.start();
+				read.start();
+				// 非同期処理スタート
 			}
 		}
 	}
+	// メッセージを受信し、messageMailBoxに格納する
 
 	public void setOnConnect(Handler onConnect) {
 		this.onConnect = onConnect;
 	}
+	// 接続時のハンドラを設定
 
 	public void setOnDisConnect(Handler onDisConnect) {
 		this.onDisConnect = onDisConnect;
 	}
+	// 切断時のハンドラを設定
+
 }
+
+//	吾輩はやれば出来る子である。
+//		  ∩∩
+//	    （´･ω･）
+//	   ＿|　⊃／(＿＿_
+//	　／ └-(＿＿＿_／
+//	 ￣￣￣￣￣￣￣
+//	やる気はまだない
+//
+//	　　 ⊂⌒／ヽ-、＿_
+//	　／⊂_/＿＿＿＿ ／
+//	  ￣￣￣￣￣￣￣

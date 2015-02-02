@@ -51,7 +51,7 @@ public class MainActivity extends BluetoothManagedActivity {
 			button.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					setTargetDeviceName(bluetoothDevice.getName(), bluetoothDevice.getAddress());
+					setTargetDevice(bluetoothDevice);
 					connectDevice();
 					readMessageStart(100);
 					// クリックされたら、クリックしたボタンに対応するBluetoothDeviceに接続、同時にメッセージの受信をスタートする。
@@ -117,7 +117,7 @@ public class MainActivity extends BluetoothManagedActivity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 
-			if (isConnectDevice()) {
+			if (isDeviceConnected()) {
 				textViewReadMessage.setText(readMessage().get(0));
 				// メッセージを受信する。
 				// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
