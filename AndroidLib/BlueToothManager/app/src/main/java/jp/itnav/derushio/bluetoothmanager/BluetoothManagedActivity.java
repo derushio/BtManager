@@ -16,16 +16,18 @@ abstract public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
 	private String targetDeviceName;
+	private String targetDeviceAddress;
 
-	private Handler mainLooperHandler;
-	protected SensorTimerHandler sensorTimerHandler;
+	private TimerHandler timerHandler;
+
+	private boolean isReadStarted = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		bluetoothManager = new BluetoothManager(this);
-		mainLooperHandler = new Handler();
+		timerHandler = new TimerHandler();
 	}
 
 	@Override
@@ -36,26 +38,56 @@ abstract public class BluetoothManagedActivity extends Activity {
 				connectDevice();
 			}
 		}
+
+		if (isReadStarted == true) {
+			timerHandler.timerStart();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		sensorTimerHandler = null;
 		disConnectDevices();
+
+		if (isReadStarted == true) {
+			timerHandler.timerStop();
+		}
 	}
 
-	protected void setTargetDeviceName(String targetDeviceName) {
+	protected Set<BluetoothDevice> getParedDevices() {
+		return bluetoothManager.getParedDevices();
+	}
+
+	protected void setTargetDeviceName(String targetDeviceName, String targetDeviceAddress) {
 		this.targetDeviceName = targetDeviceName;
+		this.targetDeviceAddress = targetDeviceAddress;
 	}
 
 	protected String getTargetDeviceName() {
 		return targetDeviceName;
 	}
 
+	protected boolean isConnectDevice() {
+		return bluetoothManager.isConnectDevice();
+	}
+
 	protected void connectDevice() {
-		bluetoothManager.connectDevice(targetDeviceName);
+		bluetoothManager.connectDevice(targetDeviceAddress);
+	}
+
+	protected void disConnectDevices() {
+		bluetoothManager.disConnectDevices();
+	}
+
+	protected void readMessageStart(long delayMilliSec) {
+		timerHandler.timerStart(delayMilliSec);
+		isReadStarted = true;
+	}
+
+	protected void readMessageStop() {
+		timerHandler.timerStop();
+		isReadStarted = false;
 	}
 
 	protected void writeMessage(String message) {
@@ -66,44 +98,45 @@ abstract public class BluetoothManagedActivity extends Activity {
 		return bluetoothManager.getMessageMailBox();
 	}
 
-	protected void readMessageStart(long delayMilliSec) {
-
-		sensorTimerHandler = new SensorTimerHandler();
-		sensorTimerHandler.sleep(delayMilliSec);
-
-	}
-
-	public class SensorTimerHandler extends Handler {
-		private long delayMilliSec;
+	private class TimerHandler extends Handler {
+		// タイマーを定義するclass
+		private boolean isTick = false;
+		// タイマーが動いているか
+		private long delayMilliSec = 1000;
+		// 待ち時間の長さ
 
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 
-			if (sensorTimerHandler != null) {
-				sleep(delayMilliSec);
+			if (isConnectDevice()) {
+				bluetoothManager.readMessage();
+				// メッセージを受信する。
 			}
 
-			bluetoothManager.readMessage();
+			if (isTick == true) {
+				sleep();
+			}
 		}
 
-		public void sleep(long delayMilliSec) {
+		public void timerStart(long delayMilliSec) {
 			this.delayMilliSec = delayMilliSec;
+			isTick = true;
+			sleep();
+		}
+
+		public void timerStart() {
+			timerStart(delayMilliSec);
+		}
+		// リスタート用のOverLoad
+
+		public void timerStop() {
+			isTick = false;
+		}
+
+		private void sleep() {
 			removeMessages(0);
 			sendMessageDelayed(obtainMessage(0), delayMilliSec);
 		}
 	}
-
-	protected void disConnectDevices() {
-		bluetoothManager.disConnectDevices();
-	}
-
-	protected Set<BluetoothDevice> getParedDevices() {
-		return bluetoothManager.getParedDevices();
-	}
-
-	protected ArrayList<String> getParedDeviceNames() {
-		return bluetoothManager.getParedDeviceNames();
-	}
-
 }

@@ -23,27 +23,32 @@ import java.util.UUID;
  */
 public class BluetoothManager {
 	private static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	// SPP通信のUUID
 
 	private Context context;
 
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
 	private BluetoothDevice bluetoothDevice;
+	private Set<BluetoothDevice> paredDevices;
+	// Bluetooth制御用クラス群
 
 	private InputStream inputStream;
 	private OutputStream outputStream;
+	// 入出力制御
 
 	private Handler onConnect;
 	private Handler onDisConnect;
+	// 接続時、切断時のHandler
 
 	private ArrayList<String> messageMailBox;
+	// Bluetooth通信の受信用メールボックス
 
 	public BluetoothManager(Context context) {
 		this.context = context;
 		messageMailBox = new ArrayList<String>(100);
 		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		paredDevices = bluetoothAdapter.getBondedDevices();
-		getParedDeviceNames();
+		paredDevices = getParedDevices();
 
 		onConnect = new Handler(new Handler.Callback() {
 			@Override
@@ -59,6 +64,10 @@ public class BluetoothManager {
 					case -2:
 						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
+					case -3:
+						Toast.makeText(BluetoothManager.this.context, "NO SUCH DEVICE", Toast.LENGTH_SHORT).show();
+						break;
+
 					default:
 						break;
 				}
@@ -84,31 +93,24 @@ public class BluetoothManager {
 		});
 	}
 
-	public ArrayList<String> getMessageMailBox() {
-		return messageMailBox;
+	public Set<BluetoothDevice> getParedDevices() {
+		paredDevices = bluetoothAdapter.getBondedDevices();
+		return paredDevices;
 	}
 
-	public void setMessageMailBox(ArrayList<String> messageMailBox) {
-		this.messageMailBox = messageMailBox;
+	public boolean isConnectDevice() {
+		if (bluetoothSocket != null) {
+			return bluetoothSocket.isConnected();
+		}
+		return false;
 	}
 
-	public void setOnConnect(Handler onConnect) {
-		this.onConnect = onConnect;
-	}
-
-	public void setOnDisConnect(Handler onDisConnect) {
-		this.onDisConnect = onDisConnect;
-	}
-
-	public void connectDevice(String paredDeviceName) {
-		int lineIndex = paredDeviceName.indexOf("\n");
-		String address = paredDeviceName.substring(lineIndex + 1, paredDeviceName.length());
-
-		Log.d("target address", address);
+	public void connectDevice(String paredDeviceAddress) {
+		Log.d("target address", paredDeviceAddress);
 
 		for (BluetoothDevice paredDevice : paredDevices) {
 			Log.d("paredDevice address", paredDevice.getAddress());
-			if (address.equals(paredDevice.getAddress())) {
+			if (paredDeviceAddress.equals(paredDevice.getAddress())) {
 				this.bluetoothDevice = paredDevice;
 
 				Log.d("find", "device");
@@ -161,6 +163,9 @@ public class BluetoothManager {
 				return;
 			}
 		}
+		Message message = new Message();
+		message.what = -3;
+		onConnect.sendMessage(message);
 	}
 
 	public void reconnectedDevice() {
@@ -174,6 +179,34 @@ public class BluetoothManager {
 				}
 			}
 		});
+	}
+
+	public void disConnectDevices() {
+		if (bluetoothSocket != null) {
+			if (bluetoothSocket.isConnected()) {
+				Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						Message message = new Message();
+						try {
+							bluetoothSocket.close();
+							message.what = 0;
+							onDisConnect.sendMessage(message);
+						} catch (IOException e) {
+							message.what = -1;
+							onDisConnect.sendMessage(message);
+							e.printStackTrace();
+						}
+					}
+				});
+
+				thread.start();
+			}
+		}
+	}
+
+	public ArrayList<String> getMessageMailBox() {
+		return messageMailBox;
 	}
 
 	public void writeMessage(final String message) {
@@ -222,42 +255,11 @@ public class BluetoothManager {
 		}
 	}
 
-	public void disConnectDevices() {
-		if (bluetoothSocket != null) {
-			if (bluetoothSocket.isConnected()) {
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						Message message = new Message();
-						try {
-							bluetoothSocket.close();
-							message.what = 0;
-							onDisConnect.sendMessage(message);
-						} catch (IOException e) {
-							message.what = -1;
-							onDisConnect.sendMessage(message);
-							e.printStackTrace();
-						}
-					}
-				});
-
-				thread.start();
-			}
-		}
+	public void setOnConnect(Handler onConnect) {
+		this.onConnect = onConnect;
 	}
 
-	private static Set<BluetoothDevice> paredDevices;
-
-	public ArrayList<String> getParedDeviceNames() {
-		ArrayList<String> paredDeviceNames = new ArrayList<String>();
-		for (BluetoothDevice paredDevice : paredDevices) {
-			String paredDeviceName = paredDevice.getName() + "\n" + paredDevice.getAddress();
-			paredDeviceNames.add(paredDeviceName);
-		}
-		return paredDeviceNames;
-	}
-
-	public Set<BluetoothDevice> getParedDevices() {
-		return bluetoothAdapter.getBondedDevices();
+	public void setOnDisConnect(Handler onDisConnect) {
+		this.onDisConnect = onDisConnect;
 	}
 }

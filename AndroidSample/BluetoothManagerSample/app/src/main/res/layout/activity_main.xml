@@ -1,0 +1,48 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	tools:context=".MainActivity">
+
+	<ScrollView
+		android:id="@+id/paredDeviceListScroll"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+
+		<LinearLayout
+			android:id="@+id/paredDeviceList"
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+	</ScrollView>
+
+	<TextView
+		android:id="@+id/textViewReadMessage"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="返信："
+		android:textSize="24sp"
+		android:textColor="@android:color/black"/>
+
+	<EditText
+		android:id="@+id/editTextWriteMessage"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"/>
+
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="送信"
+		android:textSize="24sp"
+		android:textColor="@android:color/black"
+		android:onClick="writeMessage"/>
+
+
+</LinearLayout>
