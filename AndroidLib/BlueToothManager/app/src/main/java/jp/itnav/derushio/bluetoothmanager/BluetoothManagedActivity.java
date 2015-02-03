@@ -118,12 +118,12 @@ abstract public class BluetoothManagedActivity extends Activity {
 	}
 	// メッセージを受信しているメールボックスを取得する
 
-	public void setOnConnect(Handler onConnect) {
+	protected void setOnConnect(Handler onConnect) {
 		bluetoothManager.setOnConnect(onConnect);
 	}
 	// 接続時のハンドラを設定
 
-	public void setOnDisConnect(Handler onDisConnect) {
+	protected void setOnDisConnect(Handler onDisConnect) {
 		bluetoothManager.setOnDisConnect(onDisConnect);
 	}
 	// 切断時のハンドラを設定

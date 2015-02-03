@@ -30,12 +30,15 @@ public class MainActivity extends BluetoothManagedActivity {
 	// 送信するメッセージを設定するEditText
 
 	private TimerHandler timerHandler;
+	private boolean isTimerHandlerStarted = false;
 	// タイマー
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		timerHandler = new TimerHandler();
 
 		paredDeviceList = (LinearLayout) findViewById(R.id.paredDeviceList);
 		textViewReadMessage = (TextView) findViewById(R.id.textViewReadMessage);
@@ -55,29 +58,32 @@ public class MainActivity extends BluetoothManagedActivity {
 					setTargetDevice(bluetoothDevice);
 					connectDevice();
 					readMessageStart(100);
+					timerHandler.timerStart(1000);
+					isTimerHandlerStarted = true;
 					// クリックされたら、クリックしたボタンに対応するBluetoothDeviceに接続、同時にメッセージの受信をスタートする。
 				}
 			});
-
 			paredDeviceList.addView(button);
 		}
-
-		timerHandler = new TimerHandler();
-		timerHandler.timerStart(1000);
-		// タイマースタート
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		timerHandler.timerStop();
+		if (isTimerHandlerStarted) {
+			timerHandler.timerStop();
+		}
 	}
+	// 画面が止まった時にタイマーもストップ
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		timerHandler.timerStart();
+		if (isTimerHandlerStarted) {
+			timerHandler.timerStart();
+		}
 	}
+	// 画面が始まった時にタイマーをスタート
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -107,7 +113,6 @@ public class MainActivity extends BluetoothManagedActivity {
 		// メッセージを送信する
 	}
 
-
 	private class TimerHandler extends Handler {
 		// タイマーを定義するclass
 		private boolean isTick = false;
@@ -120,13 +125,9 @@ public class MainActivity extends BluetoothManagedActivity {
 			super.handleMessage(msg);
 
 			if (isDeviceConnected()) {
-				try {
-					textViewReadMessage.setText("" + readMessage().get(0));
-					// メッセージを受信する。
-					// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
-				} catch (IndexOutOfBoundsException e) {
-					textViewReadMessage.setText("NO READ MESSAGE");
-				}
+				textViewReadMessage.setText("返信：" + readMessage().get(0));
+				// メッセージを受信する。
+				// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
 			}
 
 			if (isTick) {
