@@ -43,6 +43,7 @@
 		android:textSize="24sp"
 		android:textColor="@android:color/black"
 		android:onClick="writeMessage"/>
+	<!-- クリックされたらwriteMessageメソッドを実行 -->
 
 
 </LinearLayout>

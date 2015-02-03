@@ -46,6 +46,7 @@ public class MainActivity extends BluetoothManagedActivity {
 		// ペアリングされているデバイスを取得
 		for (final BluetoothDevice bluetoothDevice : paredDevices) {
 			Button button = new Button(this);
+			// ボタンをインスタンス
 			button.setText(bluetoothDevice.getName() + "\n" + bluetoothDevice.getAddress());
 			button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 			button.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +104,7 @@ public class MainActivity extends BluetoothManagedActivity {
 	public void writeMessage(View v) {
 		editTextWriteMessage.clearFocus();
 		writeMessage(editTextWriteMessage.getText().toString());
+		// メッセージを送信する
 	}
 
 
@@ -118,12 +120,17 @@ public class MainActivity extends BluetoothManagedActivity {
 			super.handleMessage(msg);
 
 			if (isDeviceConnected()) {
-				textViewReadMessage.setText(readMessage().get(0));
-				// メッセージを受信する。
-				// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
+				try {
+					textViewReadMessage.setText("" + readMessage().get(0));
+
+					// メッセージを受信する。
+					// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
+				} catch (IndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
 			}
 
-			if (isTick == true) {
+			if (isTick) {
 				sleep();
 			}
 		}

@@ -144,7 +144,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 				// メッセージを受信する。
 			}
 
-			if (isTick == true) {
+			if (isTick) {
 				sleep();
 			}
 		}
