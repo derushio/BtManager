@@ -236,6 +236,11 @@ public class BluetoothManager {
 	// デバイスから切断する
 
 	public ArrayList<String> getMessageMailBox() {
+		if (messageMailBox.size() == 0) {
+			ArrayList<String> noMessage = new ArrayList<String>(1);
+			noMessage.add(0, "NO READ MESSAGE");
+			return noMessage;
+		}
 		return messageMailBox;
 		// 受信したメッセージ郡を返す。 新しい0<------99古い
 	}

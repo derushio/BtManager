@@ -122,11 +122,10 @@ public class MainActivity extends BluetoothManagedActivity {
 			if (isDeviceConnected()) {
 				try {
 					textViewReadMessage.setText("" + readMessage().get(0));
-
 					// メッセージを受信する。
 					// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
 				} catch (IndexOutOfBoundsException e) {
-					e.printStackTrace();
+					textViewReadMessage.setText("NO READ MESSAGE");
 				}
 			}
 
