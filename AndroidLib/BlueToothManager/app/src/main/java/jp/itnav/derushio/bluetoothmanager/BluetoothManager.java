@@ -122,63 +122,61 @@ public class BluetoothManager {
 	// ターゲットされているデバイスを取得
 
 	public void connectDevice() {
-		if (bluetoothSocket != null) {
-			if (targetDevice != null) {
-				Thread connect = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						// ここからは時間がかかる処理なので、非同期処理で行う
+		if (targetDevice != null) {
+			Thread connect = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// ここからは時間がかかる処理なので、非同期処理で行う
 
-						Message message = new Message();
-						// Handlerに送るメッセージを初期化
+					Message message = new Message();
+					// Handlerに送るメッセージを初期化
 
-						try {
-							bluetoothSocket = targetDevice.createRfcommSocketToServiceRecord(SPP_UUID);
-						} catch (IOException e) {
-							message.what = -1;
-							onConnect.sendMessage(message);
-							// エラーｰ1を送る（ソケットが見つからない）
-							e.printStackTrace();
-							return;
-						}
-
-						if (bluetoothAdapter.isDiscovering()) {
-							bluetoothAdapter.cancelDiscovery();
-							// 探索中だったらキャンセルする
-						}
-
-						try {
-							bluetoothSocket.connect();
-							message.what = 0;
-							onConnect.sendMessage(message);
-							// 完了0を送る（接続成功）
-						} catch (IOException e1) {
-							try {
-								bluetoothSocket.close();
-							} catch (IOException e2) {
-								e2.printStackTrace();
-							}
-							message.what = -2;
-							onConnect.sendMessage(message);
-							// エラー-2を送る（デバイスが見つからない）
-							return;
-						}
-
-						try {
-							inputStream = bluetoothSocket.getInputStream();
-							outputStream = bluetoothSocket.getOutputStream();
-							// 送受信用のStreamを設定
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+					try {
+						bluetoothSocket = targetDevice.createRfcommSocketToServiceRecord(SPP_UUID);
+					} catch (IOException e) {
+						message.what = -1;
+						onConnect.sendMessage(message);
+						// エラーｰ1を送る（ソケットが見つからない）
+						e.printStackTrace();
+						return;
 					}
 
-				});
+					if (bluetoothAdapter.isDiscovering()) {
+						bluetoothAdapter.cancelDiscovery();
+						// 探索中だったらキャンセルする
+					}
 
-				connect.start();
-				Log.d("ThreadStart", "Connect");
-				// Threadをスタートする（非同期処理）;
-			}
+					try {
+						bluetoothSocket.connect();
+						message.what = 0;
+						onConnect.sendMessage(message);
+						// 完了0を送る（接続成功）
+					} catch (IOException e1) {
+						try {
+							bluetoothSocket.close();
+						} catch (IOException e2) {
+							e2.printStackTrace();
+						}
+						message.what = -2;
+						onConnect.sendMessage(message);
+						// エラー-2を送る（デバイスが見つからない）
+						return;
+					}
+
+					try {
+						inputStream = bluetoothSocket.getInputStream();
+						outputStream = bluetoothSocket.getOutputStream();
+						// 送受信用のStreamを設定
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			});
+
+			connect.start();
+			Log.d("ThreadStart", "Connect");
+			// Threadをスタートする（非同期処理）;
 		}
 	}
 	// デバイスに接続する
