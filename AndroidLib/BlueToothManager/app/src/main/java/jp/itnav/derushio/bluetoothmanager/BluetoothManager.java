@@ -69,6 +69,9 @@ public class BluetoothManager {
 					case -2:
 						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
+					case -3:
+						Toast.makeText(BluetoothManager.this.context, "NO SUCH DEVICE", Toast.LENGTH_SHORT).show();
+						break;
 					default:
 						break;
 				}
@@ -177,6 +180,10 @@ public class BluetoothManager {
 			connect.start();
 			Log.d("ThreadStart", "Connect");
 			// Threadをスタートする（非同期処理）;
+		} else {
+			Message message = new Message();
+			message.what = -3;
+			onConnect.sendMessage(message);
 		}
 	}
 	// デバイスに接続する
