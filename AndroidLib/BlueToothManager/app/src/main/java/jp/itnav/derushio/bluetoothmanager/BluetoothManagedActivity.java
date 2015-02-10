@@ -62,7 +62,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
-		disConnectDevices();
+		disConnectDevice();
 		// デバイスを切断する
 
 		if (isReadMessageStarted == true) {
@@ -149,7 +149,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	}
 	// デバイスに再接続
 
-	protected void disConnectDevices() {
+	protected void disConnectDevice() {
 		bluetoothManager.disConnectDevice();
 	}
 	// デバイスから切断
