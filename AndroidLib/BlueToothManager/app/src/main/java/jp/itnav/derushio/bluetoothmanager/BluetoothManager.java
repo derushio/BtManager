@@ -30,8 +30,8 @@ public class BluetoothManager {
 
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
-	private BluetoothDevice targetDevice;
 	private Set<BluetoothDevice> paredDevices;
+	private BluetoothDevice targetDevice;
 	// Bluetooth制御用クラス群
 
 	private InputStream inputStream;
@@ -246,6 +246,7 @@ public class BluetoothManager {
 			ArrayList<String> noMessage = new ArrayList<String>(1);
 			noMessage.add(0, "NO READ MESSAGE");
 			return noMessage;
+			// メッセージを受信していなかった場合はNO READ MESSAGEを返す
 		}
 		return messageMailBox;
 		// 受信したメッセージ郡を返す。 新しい0<------99古い
@@ -253,7 +254,7 @@ public class BluetoothManager {
 	// メッセージを受信しているメッセージボックスを取得する
 
 	public void writeMessage(final String message) {
-		try {
+		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
 				Thread write = new Thread(new Runnable() {
 					@Override
@@ -270,8 +271,6 @@ public class BluetoothManager {
 				write.start();
 				// 非同期処理スタート
 			}
-		} catch (NullPointerException e) {
-			e.printStackTrace();
 		}
 	}
 	// メッセージを送信する
@@ -313,7 +312,6 @@ public class BluetoothManager {
 		this.onDisConnect = onDisConnect;
 	}
 	// 切断時のハンドラを設定
-
 }
 
 //	吾輩はやれば出来る子である。
