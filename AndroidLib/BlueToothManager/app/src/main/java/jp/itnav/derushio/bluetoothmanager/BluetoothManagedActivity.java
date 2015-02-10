@@ -19,6 +19,10 @@ import java.util.Set;
  * Created by derushio on 14/11/10.
  */
 abstract public class BluetoothManagedActivity extends Activity {
+	/**
+	 * Bluetoothを利用するときに使う機能を補完する抽象メソッド
+	 * 継承して使ってください
+	 */
 
 	private BluetoothManager bluetoothManager;
 	// Bluetoothを管理する自作クラス
@@ -152,14 +156,17 @@ abstract public class BluetoothManagedActivity extends Activity {
 
 	protected void readMessageStart(long delayMilliSec) {
 		timerHandler.timerStart(delayMilliSec);
+		// タイマーを待ち時間設定情報を付与してスタート
 		isReadMessageStarted = true;
+		// メッセージリードをスタートしたことを記録する
 	}
 	// タイマーをスタートし、一定時間ごとにメッセージを受信する
 
-
 	protected void readMessageStop() {
 		timerHandler.timerStop();
+		// タイマーを停止する
 		isReadMessageStarted = false;
+		// タイマー停止したことを記録する
 	}
 	// タイマーをストップし、メッセージ受信を停止する
 

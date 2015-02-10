@@ -28,7 +28,6 @@ public class BluetoothManager {
 	private Context context;
 	// Activity情報
 
-
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
 	private BluetoothDevice targetDevice;
@@ -58,7 +57,6 @@ public class BluetoothManager {
 		onConnect = new Handler(new Handler.Callback() {
 			@Override
 			public boolean handleMessage(Message msg) {
-
 				switch (msg.what) {
 					case 0:
 						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
