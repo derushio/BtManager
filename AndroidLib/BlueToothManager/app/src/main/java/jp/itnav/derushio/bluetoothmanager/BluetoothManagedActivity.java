@@ -90,16 +90,22 @@ abstract public class BluetoothManagedActivity extends Activity {
 
 	protected void showDeviceSelectDialog() {
 		final Dialog dialog = new Dialog(this);
+		// ダイアログを新規作成(別クラス内からアクセスするためfinal)
 		dialog.setTitle("デバイス選択");
-		ScrollView scrollView = new ScrollView(this);
+
 		LinearLayout paredDevicesHolder = new LinearLayout(this);
+		// 並べるレイアウトを新規作成
 		paredDevicesHolder.setOrientation(LinearLayout.VERTICAL);
+		// 縦並べに設定
+		paredDevicesHolder.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		// レイアウト時の設定をセット
 
 		Set<BluetoothDevice> paredDevices = getParedDevices();
-
 		for (final BluetoothDevice paredDevice : paredDevices) {
-			final Button button = new Button(this);
+			Button button = new Button(this);
+			// ボタンを新規作成
 			button.setText(paredDevice.getName());
+			// デバイス名をボタンにセット
 			button.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -108,18 +114,24 @@ abstract public class BluetoothManagedActivity extends Activity {
 					dialog.dismiss();
 				}
 			});
+			// クリックリスナ(クリックされた時の動作)をセット
 			button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 			button.setTag(paredDevice);
+			// タグとして、BluetoothDeviceをセット
 
 			paredDevicesHolder.addView(button);
+			// LinearLayoutにセット
 		}
+		// ペアされているデバイスを立て並べのボタンにして選択できるようにする
 
-		paredDevicesHolder.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		ScrollView scrollView = new ScrollView(this);
 		scrollView.addView(paredDevicesHolder);
-
+		// 縦並びのレイアウトがスクロールできるようにする
 		dialog.addContentView(scrollView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		// ダイアログに並べられたボタンをセット
 
 		dialog.show();
+		// ダイアログを表示
 	}
 	// デバイスを選択するダイアログを表示
 
