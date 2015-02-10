@@ -145,12 +145,12 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// デバイスに接続
 
 	protected void reConnectDevice() {
-		bluetoothManager.disConnectDevices(true);
+		bluetoothManager.reConnectDevice();
 	}
 	// デバイスに再接続
 
 	protected void disConnectDevices() {
-		bluetoothManager.disConnectDevices(false);
+		bluetoothManager.disConnectDevice();
 	}
 	// デバイスから切断
 

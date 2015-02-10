@@ -88,6 +88,9 @@ public class BluetoothManager {
 					case -1:
 						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
+					case -2:
+						Toast.makeText(BluetoothManager.this.context, "NOT CONNECTED", Toast.LENGTH_SHORT).show();
+						break;
 					default:
 						break;
 				}
@@ -186,14 +189,24 @@ public class BluetoothManager {
 	}
 	// デバイスに接続する
 
-	public void disConnectDevices(final boolean reconnect) {
+	public void reConnectDevice() {
+		disConnectDevice(true);
+	}
+	// デバイスに再接続する
+
+	public void disConnectDevice() {
+		disConnectDevice(false);
+	}
+	// デバイスから切断する(オーバーロード)
+
+	public void disConnectDevice(final boolean reconnect) {
+		final Message message = new Message();
+		// メッセージ初期化
 		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
 				Thread disConnect = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						Message message = new Message();
-						// メッセージ初期化
 						try {
 							bluetoothSocket.close();
 							message.what = 0;
@@ -208,17 +221,22 @@ public class BluetoothManager {
 
 						if (reconnect) {
 							connectDevice();
+							// 接続し直す
 						}
 					}
 				});
 
 				disConnect.start();
 				// 非同期処理開始
-			} else {
-				if (reconnect) {
-					connectDevice();
-				}
+				return;
 			}
+		}
+		message.what = -2;
+		onDisConnect.sendMessage(message);
+		// デバイスに接続されていないエラーを投げる
+		if (reconnect) {
+			connectDevice();
+			// 接続し直す
 		}
 	}
 	// デバイスから切断する
