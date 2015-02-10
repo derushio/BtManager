@@ -28,9 +28,10 @@ public class BluetoothManager {
 	private Context context;
 	// Activity情報
 
+
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
-	private BluetoothDevice bluetoothDevice;
+	private BluetoothDevice targetDevice;
 	private Set<BluetoothDevice> paredDevices;
 	// Bluetooth制御用クラス群
 
@@ -60,18 +61,14 @@ public class BluetoothManager {
 
 				switch (msg.what) {
 					case 0:
-						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						Toast.makeText(BluetoothManager.this.context, "CONNECT" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
 					case -1:
 						Toast.makeText(BluetoothManager.this.context, "NOT FOUND SOCKET", Toast.LENGTH_SHORT).show();
 						break;
 					case -2:
-						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
-					case -3:
-						Toast.makeText(BluetoothManager.this.context, "NO SUCH DEVICE", Toast.LENGTH_SHORT).show();
-						break;
-
 					default:
 						break;
 				}
@@ -85,10 +82,10 @@ public class BluetoothManager {
 			public boolean handleMessage(Message msg) {
 				switch (msg.what) {
 					case 0:
-						Toast.makeText(BluetoothManager.this.context, "DISCONNECT" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						Toast.makeText(BluetoothManager.this.context, "DISCONNECT" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
 					case -1:
-						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+						Toast.makeText(BluetoothManager.this.context, "NOT FOUND" + " " + targetDevice.getName(), Toast.LENGTH_SHORT).show();
 						break;
 					default:
 						break;
@@ -114,19 +111,19 @@ public class BluetoothManager {
 	}
 	// 何らかのデバイスに接続されていたらtrueを返す
 
-	public void connectDevice(String paredDeviceAddress) {
-		Log.d("target address", paredDeviceAddress);
+	public void setTargetDevice(BluetoothDevice targetDevice) {
+		this.targetDevice = targetDevice;
+	}
+	// ターゲットするデバイスを設定
 
-		for (BluetoothDevice paredDevice : paredDevices) {
-			Log.d("paredDevice address", paredDevice.getAddress());
-			if (paredDeviceAddress.equals(paredDevice.getAddress())) {
-				// デバイスリストにサーチをかけ、ヒットした場合の処理
-				this.bluetoothDevice = paredDevice;
-				// クラス内で制御する対象に設定
+	public BluetoothDevice getTargetDevice() {
+		return targetDevice;
+	}
+	// ターゲットされているデバイスを取得
 
-				Log.d("find", "device");
-				// logでデバイスを見つけたことを知らせる
-
+	public void connectDevice() {
+		if (bluetoothSocket != null) {
+			if (targetDevice != null) {
 				Thread connect = new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -136,7 +133,7 @@ public class BluetoothManager {
 						// Handlerに送るメッセージを初期化
 
 						try {
-							bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(SPP_UUID);
+							bluetoothSocket = targetDevice.createRfcommSocketToServiceRecord(SPP_UUID);
 						} catch (IOException e) {
 							message.what = -1;
 							onConnect.sendMessage(message);
@@ -181,32 +178,12 @@ public class BluetoothManager {
 				connect.start();
 				Log.d("ThreadStart", "Connect");
 				// Threadをスタートする（非同期処理）;
-				return;
 			}
 		}
-		Message message = new Message();
-		message.what = -3;
-		onConnect.sendMessage(message);
-		// エラー-3を送る（そもそもそんなデバイスはペアリングしてない）
 	}
 	// デバイスに接続する
 
-	public void reconnectedDevice() {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (bluetoothSocket != null) {
-					if (bluetoothSocket.isConnected()) {
-
-					}
-				}
-			}
-		});
-	}
-	// デバイスに再接続する
-	// TODO そのうち作ります（未完成）
-
-	public void disConnectDevices() {
+	public void disConnectDevices(final boolean reconnect) {
 		if (bluetoothSocket != null) {
 			if (bluetoothSocket.isConnected()) {
 				Thread disConnect = new Thread(new Runnable() {
@@ -225,11 +202,19 @@ public class BluetoothManager {
 							e.printStackTrace();
 							// 切断失敗
 						}
+
+						if (reconnect) {
+							connectDevice();
+						}
 					}
 				});
 
 				disConnect.start();
 				// 非同期処理開始
+			} else {
+				if (reconnect) {
+					connectDevice();
+				}
 			}
 		}
 	}

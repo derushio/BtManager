@@ -1,10 +1,16 @@
 package jp.itnav.derushio.bluetoothmanager;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -16,9 +22,6 @@ abstract public class BluetoothManagedActivity extends Activity {
 
 	private BluetoothManager bluetoothManager;
 	// Bluetoothを管理する自作クラス
-
-	private BluetoothDevice targetDevice;
-	// ターゲットされているデバイスの情報
 
 	private TimerHandler timerHandler;
 	// タイマー
@@ -39,7 +42,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (targetDevice != null) {
+		if (isDeviceConnected()) {
 			connectDevice();
 			// デバイスに繋ぎ直す
 		}
@@ -71,12 +74,12 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// ペアリングされているデバイスリストを取得
 
 	protected void setTargetDevice(BluetoothDevice targetDevice) {
-		this.targetDevice = targetDevice;
+		bluetoothManager.setTargetDevice(targetDevice);
 	}
 	// ターゲットにするデバイスをセット
 
 	protected BluetoothDevice getTargetDevice() {
-		return targetDevice;
+		return bluetoothManager.getTargetDevice();
 	}
 	// ターゲットされているデバイス情報を取得
 
@@ -85,13 +88,55 @@ abstract public class BluetoothManagedActivity extends Activity {
 	}
 	// デバイスに接続しているかを取得
 
+	protected void showDeviceSelectDialog() {
+		final Dialog dialog = new Dialog(this);
+		dialog.setTitle("デバイス選択");
+		ScrollView scrollView = new ScrollView(this);
+		LinearLayout paredDevicesHolder = new LinearLayout(this);
+		paredDevicesHolder.setOrientation(LinearLayout.VERTICAL);
+
+		Set<BluetoothDevice> paredDevices = getParedDevices();
+
+		for (final BluetoothDevice paredDevice : paredDevices) {
+			final Button button = new Button(this);
+			button.setText(paredDevice.getName());
+			button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					setTargetDevice(paredDevice);
+					connectDevice();
+					dialog.dismiss();
+				}
+			});
+			button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+			button.setTag(paredDevice);
+
+			paredDevicesHolder.addView(button);
+		}
+
+		paredDevicesHolder.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+		scrollView.addView(paredDevicesHolder);
+
+		dialog.addContentView(scrollView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+		dialog.show();
+	}
+	// デバイスを選択するダイアログを表示
+
 	protected void connectDevice() {
-		bluetoothManager.connectDevice(targetDevice.getAddress());
+		bluetoothManager.connectDevice();
 	}
 	// デバイスに接続
 
+	protected void reConnectDevice() {
+		if (isDeviceConnected()) {
+			bluetoothManager.disConnectDevices(true);
+		}
+	}
+	// デバイスに再接続
+
 	protected void disConnectDevices() {
-		bluetoothManager.disConnectDevices();
+		bluetoothManager.disConnectDevices(false);
 	}
 	// デバイスから切断
 
