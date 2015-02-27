@@ -24,7 +24,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	 * 継承して使ってください
 	 */
 
-	private BluetoothManager bluetoothManager;
+	private BluetoothSppManager bluetoothSppManager;
 	// Bluetoothを管理する自作クラス
 
 	private TimerHandler timerHandler;
@@ -37,7 +37,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		bluetoothManager = new BluetoothManager(this);
+		bluetoothSppManager = new BluetoothSppManager(this, 100);
 		timerHandler = new TimerHandler();
 		// 初期化
 	}
@@ -73,22 +73,22 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// Activityが一時停止するときに呼ばれるメソッド
 
 	protected Set<BluetoothDevice> getParedDevices() {
-		return bluetoothManager.getParedDevices();
+		return bluetoothSppManager.getParedDevices();
 	}
 	// ペアリングされているデバイスリストを取得
 
 	protected void setTargetDevice(BluetoothDevice targetDevice) {
-		bluetoothManager.setTargetDevice(targetDevice);
+		bluetoothSppManager.setTargetDevice(targetDevice);
 	}
 	// ターゲットにするデバイスをセット
 
 	protected BluetoothDevice getTargetDevice() {
-		return bluetoothManager.getTargetDevice();
+		return bluetoothSppManager.getTargetDevice();
 	}
 	// ターゲットされているデバイス情報を取得
 
 	protected boolean isDeviceConnected() {
-		return bluetoothManager.isDeviceConnected();
+		return bluetoothSppManager.isDeviceConnected();
 	}
 	// デバイスに接続しているかを取得
 
@@ -140,17 +140,17 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// デバイスを選択するダイアログを表示
 
 	protected void connectDevice() {
-		bluetoothManager.connectDevice();
+		bluetoothSppManager.connectDevice();
 	}
 	// デバイスに接続
 
 	protected void reConnectDevice() {
-		bluetoothManager.reConnectDevice();
+		bluetoothSppManager.reConnectDevice();
 	}
 	// デバイスに再接続
 
 	protected void disConnectDevice() {
-		bluetoothManager.disConnectDevice();
+		bluetoothSppManager.disConnectDevice();
 	}
 	// デバイスから切断
 
@@ -171,34 +171,24 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// タイマーをストップし、メッセージ受信を停止する
 
 	protected void writeMessage(String message) {
-		bluetoothManager.writeMessage(message);
+		bluetoothSppManager.writeMessage(message);
 	}
 	// メッセージを送信する
 
 	protected ArrayList<String> readMessage() {
-		return bluetoothManager.getMessageMailBox();
+		return bluetoothSppManager.getMessageMailBox();
 	}
 	// メッセージを受信しているメールボックスを取得する
 
 	protected void setOnConnect(Handler onConnect) {
-		bluetoothManager.setOnConnect(onConnect);
+		bluetoothSppManager.setOnConnect(onConnect);
 	}
 	// 接続時のハンドラを設定
 
 	protected void setOnDisConnect(Handler onDisConnect) {
-		bluetoothManager.setOnDisConnect(onDisConnect);
+		bluetoothSppManager.setOnDisConnect(onDisConnect);
 	}
 	// 切断時のハンドラを設定
-
-	protected void startBluetoothServer(String name) {
-		bluetoothManager.startBluetoothServer(name);
-	}
-	// Bluetooth接続をホストする
-
-	protected void stopBluetoothServer() {
-		bluetoothManager.stopBluetoothServer();
-	}
-	// Bluetooth接続ホストを停止する
 
 	private class TimerHandler extends Handler {
 		// タイマーを定義するclass
@@ -212,7 +202,7 @@ abstract public class BluetoothManagedActivity extends Activity {
 			super.handleMessage(msg);
 
 			if (isDeviceConnected()) {
-				bluetoothManager.readMessage();
+				bluetoothSppManager.readMessage();
 				// メッセージを受信する。
 			}
 
