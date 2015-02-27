@@ -2,6 +2,7 @@ package jp.itnav.derushio.bluetoothmanager;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
@@ -30,6 +31,7 @@ public class BluetoothManager {
 
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothSocket bluetoothSocket;
+	private BluetoothServerSocket bluetoothServerSocket;
 	private Set<BluetoothDevice> paredDevices;
 	private BluetoothDevice targetDevice;
 	// Bluetooth制御用クラス群
@@ -312,6 +314,48 @@ public class BluetoothManager {
 		this.onDisConnect = onDisConnect;
 	}
 	// 切断時のハンドラを設定
+
+	public void startBluetoothServer(String name) {
+		try {
+			bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(name, SPP_UUID);
+
+			Thread acceptThread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						bluetoothSocket = bluetoothServerSocket.accept();
+
+						inputStream = bluetoothSocket.getInputStream();
+						outputStream = bluetoothSocket.getOutputStream();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+
+			acceptThread.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	// Bluetooth接続をホストする
+
+	public void stopBluetoothServer() {
+		Thread stopThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					bluetoothServerSocket.close();
+					disConnectDevice();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		stopThread.start();
+	}
+	// Bluetooth接続ホストを停止する
 }
 
 //	吾輩はやれば出来る子である。

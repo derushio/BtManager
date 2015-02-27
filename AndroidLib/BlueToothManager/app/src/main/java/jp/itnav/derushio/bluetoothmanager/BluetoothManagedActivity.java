@@ -190,6 +190,16 @@ abstract public class BluetoothManagedActivity extends Activity {
 	}
 	// 切断時のハンドラを設定
 
+	protected void startBluetoothServer(String name) {
+		bluetoothManager.startBluetoothServer(name);
+	}
+	// Bluetooth接続をホストする
+
+	protected void stopBluetoothServer() {
+		bluetoothManager.stopBluetoothServer();
+	}
+	// Bluetooth接続ホストを停止する
+
 	private class TimerHandler extends Handler {
 		// タイマーを定義するclass
 		private boolean isTick = false;
