@@ -1,4 +1,4 @@
-package jp.itnav.derushio.bluetoothmanager;
+package jp.itnav.derushio.btmanager;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
@@ -18,14 +18,14 @@ import java.util.UUID;
 /**
  * Created by derushio on 15/02/27.
  */
-public abstract class BluetoothManagerBase {
+public abstract class BtManagerBase {
 	public static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	protected Context mContext;
 	// Activity情報
 
-	protected BluetoothAdapter mBluetoothAdapter;
-	protected BluetoothSocket mBluetoothSocket;
+	protected BluetoothAdapter mBtAdapter;
+	protected BluetoothSocket mBtSocket;
 	// Bluetoothモジュールとの通信をするためのクラス
 
 	protected Handler mOnConnect;
@@ -39,12 +39,12 @@ public abstract class BluetoothManagerBase {
 	protected ArrayList<String> mMessageMailBox;
 	// Bluetooth通信の受信用メールボックス
 
-	public BluetoothManagerBase(Context context, int messageMailBoxLength) {
+	public BtManagerBase(Context context, int messageMailBoxLength) {
 		mContext = context;
 		mMessageMailBox = new ArrayList<String>(messageMailBoxLength);
 		// メールボックス容量
 
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		// デバイスのデフォルト設定のBluetoothAdapterを使う
 
 		mOnConnect = new Handler(new Handler.Callback() {
@@ -99,17 +99,17 @@ public abstract class BluetoothManagerBase {
 	}
 	// コンストラクタ
 
-	public boolean isSocketExist() {
-		if (mBluetoothSocket != null) {
+	public boolean isSocketExists() {
+		if (mBtSocket != null) {
 			return true;
 		}
 		return false;
 	}
-	// ソケットが存在しているか確認
+	// ソケットが存在しているか確認(通信がスタートしているかどうか)
 
 	public boolean isDeviceConnected() {
-		if (isSocketExist()) {
-			return mBluetoothSocket.isConnected();
+		if (isSocketExists()) {
+			return mBtSocket.isConnected();
 		}
 		return false;
 	}

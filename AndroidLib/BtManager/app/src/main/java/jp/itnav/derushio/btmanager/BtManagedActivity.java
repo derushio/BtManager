@@ -1,11 +1,10 @@
-package jp.itnav.derushio.bluetoothmanager;
+package jp.itnav.derushio.btmanager;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,30 +14,33 @@ import android.widget.ScrollView;
 import java.util.ArrayList;
 import java.util.Set;
 
+import jp.itnav.derushio.btmanager.timer.TimerHandler;
+
 /**
  * Created by derushio on 14/11/10.
  */
-abstract public class BluetoothManagedActivity extends Activity {
+abstract public class BtManagedActivity extends Activity implements TimerHandler.OnTickListener {
 	/**
 	 * Bluetoothを利用するときに使う機能を補完する抽象メソッド
 	 * 継承して使ってください
 	 */
 
-	private BluetoothSppManager bluetoothSppManager;
+	protected BtSppManager mBtSppManager;
 	// Bluetoothを管理する自作クラス
 
-	private TimerHandler timerHandler;
+	private TimerHandler mReadMessageTimer;
 	// タイマー
 
-	private boolean isReadMessageStarted = false;
+	private boolean mMessageReadFlag = false;
 	// メッセージ読み込みがスタートしたか
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		bluetoothSppManager = new BluetoothSppManager(this, 100);
-		timerHandler = new TimerHandler();
+		mBtSppManager = new BtSppManager(this, 100);
+		mReadMessageTimer = new TimerHandler();
+		mReadMessageTimer.setOnTickListener(this);
 		// 初期化
 	}
 	// Activityが生成されるときに呼ばれるメソッド（一回のみ）
@@ -46,13 +48,14 @@ abstract public class BluetoothManagedActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
 		if (isDeviceConnected()) {
 			connectDevice();
 			// デバイスに繋ぎ直す
 		}
 
-		if (isReadMessageStarted == true) {
-			timerHandler.timerStart();
+		if (mMessageReadFlag == true) {
+			mReadMessageTimer.timerRestart();
 			// タイマーをスタートする
 		}
 	}
@@ -62,33 +65,45 @@ abstract public class BluetoothManagedActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
-		disConnectDevice();
-		// デバイスを切断する
+		if (isDeviceConnected()) {
+			disConnectDevice();
+			// デバイスを切断する
+		}
 
-		if (isReadMessageStarted == true) {
-			timerHandler.timerStop();
+		if (mMessageReadFlag == true) {
+			mReadMessageTimer.timerStop();
 			//タイマーをストップする
 		}
 	}
 	// Activityが一時停止するときに呼ばれるメソッド
 
 	protected Set<BluetoothDevice> getParedDevices() {
-		return bluetoothSppManager.getParedDevices();
+		return mBtSppManager.getParedDevices();
 	}
 	// ペアリングされているデバイスリストを取得
 
 	protected void setTargetDevice(BluetoothDevice targetDevice) {
-		bluetoothSppManager.setTargetDevice(targetDevice);
+		mBtSppManager.setTargetDevice(targetDevice);
 	}
 	// ターゲットにするデバイスをセット
 
 	protected BluetoothDevice getTargetDevice() {
-		return bluetoothSppManager.getTargetDevice();
+		return mBtSppManager.getTargetDevice();
 	}
 	// ターゲットされているデバイス情報を取得
 
+	protected boolean isTargetDeviceExists() {
+		return mBtSppManager.isTargetDeviceExist();
+	}
+	// デバイスをターゲットしたか取得
+
+	protected boolean isSocketExist() {
+		return mBtSppManager.isSocketExists();
+	}
+	// デバイスとのソケットの準備ができているか確認
+
 	protected boolean isDeviceConnected() {
-		return bluetoothSppManager.isDeviceConnected();
+		return mBtSppManager.isDeviceConnected();
 	}
 	// デバイスに接続しているかを取得
 
@@ -140,96 +155,61 @@ abstract public class BluetoothManagedActivity extends Activity {
 	// デバイスを選択するダイアログを表示
 
 	protected void connectDevice() {
-		bluetoothSppManager.connectDevice();
+		mBtSppManager.connectDevice();
 	}
 	// デバイスに接続
 
 	protected void reConnectDevice() {
-		bluetoothSppManager.reConnectDevice();
+		mBtSppManager.reConnectDevice();
 	}
 	// デバイスに再接続
 
 	protected void disConnectDevice() {
-		bluetoothSppManager.disConnectDevice();
+		mBtSppManager.disConnectDevice();
 	}
 	// デバイスから切断
 
 	protected void readMessageStart(long delayMilliSec) {
-		timerHandler.timerStart(delayMilliSec);
+		mReadMessageTimer.timerStart(delayMilliSec);
 		// タイマーを待ち時間設定情報を付与してスタート
-		isReadMessageStarted = true;
+		mMessageReadFlag = true;
 		// メッセージリードをスタートしたことを記録する
 	}
 	// タイマーをスタートし、一定時間ごとにメッセージを受信する
 
 	protected void readMessageStop() {
-		timerHandler.timerStop();
+		mReadMessageTimer.timerStop();
 		// タイマーを停止する
-		isReadMessageStarted = false;
+		mMessageReadFlag = false;
 		// タイマー停止したことを記録する
 	}
 	// タイマーをストップし、メッセージ受信を停止する
 
 	protected void writeMessage(String message) {
-		bluetoothSppManager.writeMessage(message);
+		mBtSppManager.writeMessage(message);
 	}
 	// メッセージを送信する
 
 	protected ArrayList<String> readMessage() {
-		return bluetoothSppManager.getMessageMailBox();
+		return mBtSppManager.getMessageMailBox();
 	}
 	// メッセージを受信しているメールボックスを取得する
 
 	protected void setOnConnect(Handler onConnect) {
-		bluetoothSppManager.setOnConnect(onConnect);
+		mBtSppManager.setOnConnect(onConnect);
 	}
 	// 接続時のハンドラを設定
 
 	protected void setOnDisConnect(Handler onDisConnect) {
-		bluetoothSppManager.setOnDisConnect(onDisConnect);
+		mBtSppManager.setOnDisConnect(onDisConnect);
 	}
 	// 切断時のハンドラを設定
 
-	private class TimerHandler extends Handler {
-		// タイマーを定義するclass
-		private boolean isTick = false;
-		// タイマーが動いているか
-		private long delayMilliSec = 1000;
-		// 待ち時間の長さ
-
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-
-			if (isDeviceConnected()) {
-				bluetoothSppManager.readMessage();
-				// メッセージを受信する。
-			}
-
-			if (isTick) {
-				sleep();
-			}
-		}
-
-		public void timerStart(long delayMilliSec) {
-			this.delayMilliSec = delayMilliSec;
-			isTick = true;
-			sleep();
-		}
-
-		public void timerStart() {
-			timerStart(delayMilliSec);
-		}
-		// リスタート用のOverLoad
-
-		public void timerStop() {
-			isTick = false;
-		}
-
-		private void sleep() {
-			removeMessages(0);
-			sendMessageDelayed(obtainMessage(0), delayMilliSec);
+	@Override
+	public void onTick() {
+		if (isDeviceConnected()) {
+			readMessage();
 		}
 	}
-	// タイマー定義
+	// mReadMessageTimerのリスナ
 }

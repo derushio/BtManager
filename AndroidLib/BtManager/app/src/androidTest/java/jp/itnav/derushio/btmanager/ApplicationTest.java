@@ -1,4 +1,4 @@
-package jp.itnav.derushio.bluetoothmanager;
+package jp.itnav.derushio.btmanager;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

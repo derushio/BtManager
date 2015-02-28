@@ -1,4 +1,4 @@
-package jp.itnav.derushio.bluetoothmanager;
+package jp.itnav.derushio.btmanager;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -10,14 +10,14 @@ import java.util.Set;
 /**
  * Created by derushio on 14/11/10.
  */
-public class BluetoothSppManager extends BluetoothManagerBase {
+public class BtSppManager extends BtManagerBase {
 	// SPP通信のUUID
 
-	protected Set<BluetoothDevice> mParedDevices;
-	protected BluetoothDevice mTargetDevice;
+	private Set<BluetoothDevice> mParedDevices;
+	private BluetoothDevice mTargetDevice;
 	// Bluetooth制御用クラス群
 
-	public BluetoothSppManager(Context context, int messageBoxLength) {
+	public BtSppManager(Context context, int messageBoxLength) {
 		super(context, messageBoxLength);
 		mParedDevices = getParedDevices();
 		// ペアリングされているデバイスを取得
@@ -25,7 +25,7 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 	// コンストラクタ
 
 	public Set<BluetoothDevice> getParedDevices() {
-		mParedDevices = mBluetoothAdapter.getBondedDevices();
+		mParedDevices = mBtAdapter.getBondedDevices();
 		return mParedDevices;
 	}
 	// ペアリングされているデバイスリストを更新したあとに結果を返す
@@ -66,7 +66,7 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 					// ここからは時間がかかる処理なので、非同期処理で行う
 
 					try {
-						mBluetoothSocket = mTargetDevice.createRfcommSocketToServiceRecord(SPP_UUID);
+						mBtSocket = mTargetDevice.createRfcommSocketToServiceRecord(SPP_UUID);
 						// SPP(Serial Port Profile)を設定
 					} catch (IOException e) {
 						// IOExceptionをキャッチした
@@ -80,13 +80,13 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 						// 設定を作れなかったのでこれ以上実行する必要がない
 					}
 
-					if (mBluetoothAdapter.isDiscovering()) {
-						mBluetoothAdapter.cancelDiscovery();
+					if (mBtAdapter.isDiscovering()) {
+						mBtAdapter.cancelDiscovery();
 						// 探索中だったらキャンセルする
 					}
 
 					try {
-						mBluetoothSocket.connect();
+						mBtSocket.connect();
 						// 接続する
 
 						//できたらこれ以下の処理が走る
@@ -104,11 +104,12 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 					}
 
 					try {
-						mBtInputStream = mBluetoothSocket.getInputStream();
-						mBtOutputStream = mBluetoothSocket.getOutputStream();
+						mBtInputStream = mBtSocket.getInputStream();
+						mBtOutputStream = mBtSocket.getOutputStream();
 						// 送受信用のStreamを設定
 					} catch (IOException e) {
 						e.printStackTrace();
+						// エラーを吐く
 					}
 				}
 
@@ -133,7 +134,7 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 				public void run() {
 					// ここからは時間がかかる処理なので、非同期処理で行う
 					try {
-						mBluetoothSocket.close();
+						mBtSocket.close();
 						// 切断する
 
 						//できたらこれ以下の処理が走る
@@ -168,15 +169,15 @@ public class BluetoothSppManager extends BluetoothManagerBase {
 	}
 	// デバイスから切断する
 
-	public void reConnectDevice() {
-		disConnectDevice(true);
-	}
-	// デバイスに再接続する
-
 	public void disConnectDevice() {
 		disConnectDevice(false);
 	}
 	// デバイスから切断する(オーバーロード)
+
+	public void reConnectDevice() {
+		disConnectDevice(true);
+	}
+	// デバイスに再接続する
 }
 
 //	吾輩はやれば出来る子である。
