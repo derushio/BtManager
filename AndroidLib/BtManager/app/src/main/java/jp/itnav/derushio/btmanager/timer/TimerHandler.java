@@ -5,8 +5,9 @@ import android.os.Message;
 
 /**
  * Created by derushio on 15/02/27.
+ * タイマーを定義するclass
  */
-public class TimerHandler extends Handler {// タイマーを定義するclass
+public class TimerHandler extends Handler {
 	private boolean mTickFlag = false;
 	// タイマーが動いているか
 	private long mDelayMilliSec = 1000;
@@ -26,6 +27,8 @@ public class TimerHandler extends Handler {// タイマーを定義するclass
 	@Override
 	public void handleMessage(Message msg) {
 		super.handleMessage(msg);
+
+		mOnTickListener.onTick();
 
 		if (mTickFlag) {
 			sleep();

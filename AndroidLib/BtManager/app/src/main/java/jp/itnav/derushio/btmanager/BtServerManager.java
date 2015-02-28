@@ -15,6 +15,14 @@ public class BtServerManager extends BtManagerBase {
 
 	private String mBtServerName;
 
+	public String getBtServerName() {
+		return mBtServerName;
+	}
+
+	public void setBtServerName(String mBtServerName) {
+		this.mBtServerName = mBtServerName;
+	}
+
 	public BtServerManager(Context context, int messageMailBoxLength) {
 		super(context, messageMailBoxLength);
 	}

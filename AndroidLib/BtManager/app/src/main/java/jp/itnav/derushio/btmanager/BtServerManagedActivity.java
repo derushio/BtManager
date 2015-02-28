@@ -1,34 +1,67 @@
 package jp.itnav.derushio.btmanager;
 
-import android.app.Activity;
 import android.os.Bundle;
+
+import java.util.ArrayList;
 
 /**
  * Created by derushio on 15/02/28.
+ * Bluetooth通信のうち、SPPによるサーバー、
+ * クライアント両方の機能をサポートするクラス。
  */
-abstract public class BtServerManagedActivity extends Activity {
+abstract public class BtServerManagedActivity extends BtManagedActivity {
 	private String mBtServerName;
-	protected BtServerManager btServerManager;
+	protected BtServerManager mBtServerManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		btServerManager = new BtServerManager(this, 100);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		if (btServerManager.isBtSocketExists()) {
-		}
+		mBtServerManager = new BtServerManager(this, 100);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
-		btServerManager.stopBtServer();
+		mBtServerManager.stopBtServer();
+	}
+
+	@Override
+	protected boolean isSocketExist() {
+		return (super.isSocketExist() || mBtServerManager.isBtSocketExists());
+	}
+
+	protected boolean isServerStarted() {
+		return mBtServerManager.isBtSocketExists();
+	}
+
+	@Override
+	protected ArrayList<String> getMessageMailBox() {
+		if (isServerStarted()) {
+			return mBtServerManager.getMessageMailBox();
+		} else {
+			return mBtSppManager.getMessageMailBox();
+		}
+	}
+
+	@Override
+	protected void writeMessage(String message) {
+		if (isServerStarted()) {
+			mBtServerManager.writeMessage(message);
+		} else {
+			mBtSppManager.writeMessage(message);
+		}
+	}
+
+	@Override
+	public void onTick() {
+		if (isSocketExist()) {
+			if (isServerStarted()) {
+				mBtServerManager.readMessage();
+			} else {
+				mBtSppManager.readMessage();
+			}
+		}
 	}
 }

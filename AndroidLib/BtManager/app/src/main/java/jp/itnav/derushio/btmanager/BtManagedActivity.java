@@ -18,12 +18,10 @@ import jp.itnav.derushio.btmanager.timer.TimerHandler;
 
 /**
  * Created by derushio on 14/11/10.
+ * BluetoothSPPを利用するときに使う機能を補完する抽象メソッド
+ * 継承して使ってください
  */
 abstract public class BtManagedActivity extends Activity implements TimerHandler.OnTickListener {
-	/**
-	 * Bluetoothを利用するときに使う機能を補完する抽象メソッド
-	 * 継承して使ってください
-	 */
 
 	protected BtSppManager mBtSppManager;
 	// Bluetoothを管理する自作クラス
@@ -190,7 +188,7 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	}
 	// メッセージを送信する
 
-	protected ArrayList<String> readMessage() {
+	protected ArrayList<String> getMessageMailBox() {
 		return mBtSppManager.getMessageMailBox();
 	}
 	// メッセージを受信しているメールボックスを取得する
@@ -207,9 +205,8 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 
 	@Override
 	public void onTick() {
-		if (isDeviceConnected()) {
-			readMessage();
+		if (isSocketExist()) {
+			mBtSppManager.readMessage();
 		}
 	}
-	// mReadMessageTimerのリスナ
 }
