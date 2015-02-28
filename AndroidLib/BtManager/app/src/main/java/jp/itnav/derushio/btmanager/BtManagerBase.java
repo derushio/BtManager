@@ -17,6 +17,8 @@ import java.util.UUID;
 
 /**
  * Created by derushio on 15/02/27.
+ * BluetoothSPPのうち、サーバー部分と
+ * クライアント部分の共通点
  */
 public abstract class BtManagerBase {
 	public static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -149,11 +151,14 @@ public abstract class BtManagerBase {
 						BufferedReader bufferedReader = new BufferedReader(reader);
 						// 自動的に読み込んでくれるクラス(バッファの実装をしなくて良い)
 
-						// TODO 二行以上送られた時の処理を考えておく
 						String message = bufferedReader.readLine();
-						// 一行読み込む
-						mMessageMailBox.add(0, message);
-						// BufferedReaderを使用して1行読み込み、messageMailBoxに突っ込む。
+
+						while (message != null) {
+							// 一行読み込む
+							mMessageMailBox.add(0, message);
+							// BufferedReaderを使用して1行読み込み、messageMailBoxに突っ込む。
+							message = bufferedReader.readLine();
+						}
 
 					} catch (IOException e) {
 						e.printStackTrace();

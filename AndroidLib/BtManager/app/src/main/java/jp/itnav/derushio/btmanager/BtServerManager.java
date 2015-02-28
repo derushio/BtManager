@@ -8,20 +8,15 @@ import java.io.IOException;
 
 /**
  * Created by derushio on 15/02/27.
+ * Bluetoothサーバーを行うための主要処理をまとめたクラス
+ * これを直接インスタンスして使っても良い。
  */
 public class BtServerManager extends BtManagerBase {
-	private BluetoothServerSocket mBtServerSocket;
+	protected BluetoothServerSocket mBtServerSocket;
 	// Bluetooth通信をホストするためのソケット
 
 	private String mBtServerName;
-
-	public String getBtServerName() {
-		return mBtServerName;
-	}
-
-	public void setBtServerName(String mBtServerName) {
-		this.mBtServerName = mBtServerName;
-	}
+	// 設定されたサーバーの名前
 
 	public BtServerManager(Context context, int messageMailBoxLength) {
 		super(context, messageMailBoxLength);
@@ -148,4 +143,13 @@ public class BtServerManager extends BtManagerBase {
 		stopBtServer(true);
 	}
 	// Bluetooth通信ホストを再スタートする
+
+	public String getBtServerName() {
+		return mBtServerName;
+	}
+	// サーバーの名前を取得
 }
+
+/**
+ * だんだん疲れてきた
+ */

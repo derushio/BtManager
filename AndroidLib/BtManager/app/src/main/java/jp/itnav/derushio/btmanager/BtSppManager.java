@@ -9,6 +9,8 @@ import java.util.Set;
 
 /**
  * Created by derushio on 14/11/10.
+ * Bluetooth通信を行うための主要処理をまとめたクラス
+ * これを直接インスタンスして使っても良い。
  */
 public class BtSppManager extends BtManagerBase {
 	// SPP通信のUUID
