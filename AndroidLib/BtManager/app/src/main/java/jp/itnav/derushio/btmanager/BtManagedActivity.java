@@ -98,7 +98,7 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	// デバイスをターゲットしたか取得
 
 	protected boolean isSocketExist() {
-		return mBtSppManager.isSocketExists();
+		return mBtSppManager.isBtSocketExists();
 	}
 	// デバイスとのソケットの準備ができているか確認
 

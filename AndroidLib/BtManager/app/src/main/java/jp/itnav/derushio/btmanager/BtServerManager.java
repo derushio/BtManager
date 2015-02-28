@@ -20,7 +20,7 @@ public class BtServerManager extends BtManagerBase {
 	}
 	// コンストラクタ
 
-	public void startBluetoothServer(final String btServerName) {
+	public void startBtServer(final String btServerName) {
 		final Message message = new Message();
 
 		if (isDeviceConnected()) {
@@ -87,7 +87,7 @@ public class BtServerManager extends BtManagerBase {
 	}
 	// Bluetooth通信をホストする
 
-	public void stopBluetoothServer(final boolean restart) {
+	public void stopBtServer(final boolean restart) {
 		final Message message = new Message();
 
 		if (isDeviceConnected()) {
@@ -111,7 +111,7 @@ public class BtServerManager extends BtManagerBase {
 					}
 
 					if (restart) {
-						startBluetoothServer(mBtServerName);
+						startBtServer(mBtServerName);
 						// 接続し直す
 					}
 				}
@@ -124,20 +124,20 @@ public class BtServerManager extends BtManagerBase {
 			mOnDisConnect.sendMessage(message);
 			// デバイスに接続されていないエラーを投げる
 			if (restart) {
-				startBluetoothServer(mBtServerName);
+				startBtServer(mBtServerName);
 				// 接続し直す
 			}
 		}
 	}
 	// Bluetooth通信ホストを停止する
 
-	public void stopBluetoothServer() {
-		stopBluetoothServer(false);
+	public void stopBtServer() {
+		stopBtServer(false);
 	}
 	// Bluetooth通信ホストを停止する(オーバーライド)
 
-	public void restartBluetoothServer() {
-		stopBluetoothServer(true);
+	public void restartBtServer() {
+		stopBtServer(true);
 	}
 	// Bluetooth通信ホストを再スタートする
 }

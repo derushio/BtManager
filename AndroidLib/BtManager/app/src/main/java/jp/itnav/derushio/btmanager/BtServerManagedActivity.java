@@ -8,20 +8,20 @@ import android.os.Bundle;
  */
 abstract public class BtServerManagedActivity extends Activity {
 	private String mBtServerName;
-	protected BtServerManager bluetoothServerManager;
+	protected BtServerManager btServerManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		bluetoothServerManager = new BtServerManager(this, 100);
+		btServerManager = new BtServerManager(this, 100);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 
-		if (bluetoothServerManager.isSocketExists()) {
+		if (btServerManager.isBtSocketExists()) {
 		}
 	}
 
@@ -29,6 +29,6 @@ abstract public class BtServerManagedActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		bluetoothServerManager.stopBluetoothServer();
+		btServerManager.stopBtServer();
 	}
 }

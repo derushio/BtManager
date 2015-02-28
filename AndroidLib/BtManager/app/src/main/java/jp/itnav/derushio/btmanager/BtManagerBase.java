@@ -99,7 +99,7 @@ public abstract class BtManagerBase {
 	}
 	// コンストラクタ
 
-	public boolean isSocketExists() {
+	public boolean isBtSocketExists() {
 		if (mBtSocket != null) {
 			return true;
 		}
@@ -108,7 +108,7 @@ public abstract class BtManagerBase {
 	// ソケットが存在しているか確認(通信がスタートしているかどうか)
 
 	public boolean isDeviceConnected() {
-		if (isSocketExists()) {
+		if (isBtSocketExists()) {
 			return mBtSocket.isConnected();
 		}
 		return false;
