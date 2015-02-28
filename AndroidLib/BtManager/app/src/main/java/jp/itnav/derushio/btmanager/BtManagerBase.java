@@ -152,13 +152,15 @@ public abstract class BtManagerBase {
 						// 自動的に読み込んでくれるクラス(バッファの実装をしなくて良い)
 
 						String message = bufferedReader.readLine();
-
+						// 一行読み込む
 						while (message != null) {
-							// 一行読み込む
 							mMessageMailBox.add(0, message);
 							// BufferedReaderを使用して1行読み込み、messageMailBoxに突っ込む。
 							message = bufferedReader.readLine();
+							// 一行読み込む
 						}
+
+						// まとめて読み込む
 
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -177,7 +179,7 @@ public abstract class BtManagerBase {
 		if (mMessageMailBox.size() == 0) {
 			// メッセージボックスに何も入っていなかった場合
 			ArrayList<String> noMessage = new ArrayList<String>(1);
-			noMessage.add(0, "NO READ MESSAGE");
+			noMessage.add(0, "NO CATCH MESSAGE");
 			return noMessage;
 			// メッセージを受信していなかった場合はNO READ MESSAGEを返す
 		}
