@@ -193,13 +193,13 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	}
 	// メッセージを受信しているメールボックスを取得する
 
-	protected void setOnConnect(Handler onConnect) {
-		mBtSppManager.setOnConnect(onConnect);
+	protected void setOnConnect(Handler.Callback onConnect) {
+		mBtSppManager.setOnConnectListener(onConnect);
 	}
 	// 接続時のハンドラを設定
 
-	protected void setOnDisConnect(Handler onDisConnect) {
-		mBtSppManager.setOnDisConnect(onDisConnect);
+	protected void setOnDisConnect(Handler.Callback onDisConnect) {
+		mBtSppManager.setOnDisConnectListener(onDisConnect);
 	}
 	// 切断時のハンドラを設定
 

@@ -57,7 +57,7 @@ public class BtSppManager extends BtManagerBase {
 
 			if (isDeviceConnected()) {
 				message.what = 1;
-				mOnConnect.sendMessage(message);
+				mOnConnectListener.sendMessage(message);
 				return;
 				// すでに接続している
 			}
@@ -76,7 +76,7 @@ public class BtSppManager extends BtManagerBase {
 						// エラーメッセージを吐く
 
 						message.what = -1;
-						mOnConnect.sendMessage(message);
+						mOnConnectListener.sendMessage(message);
 						// エラーｰ1を送る(ソケットが見つからない)
 						return;
 						// 設定を作れなかったのでこれ以上実行する必要がない
@@ -93,13 +93,13 @@ public class BtSppManager extends BtManagerBase {
 
 						//できたらこれ以下の処理が走る
 						message.what = 0;
-						mOnConnect.sendMessage(message);
+						mOnConnectListener.sendMessage(message);
 						// 完了0を送る(接続成功)
 					} catch (IOException e) {
 						// IOExceptionをキャッチ(接続できない)
 						e.printStackTrace();
 						message.what = -2;
-						mOnConnect.sendMessage(message);
+						mOnConnectListener.sendMessage(message);
 						// エラー-2を送る(デバイスが見つからない)
 						return;
 						// 接続できなかったのでこれ以上する必要はない
@@ -121,7 +121,7 @@ public class BtSppManager extends BtManagerBase {
 			// Threadをスタートする(非同期処理);
 		} else {
 			message.what = -3;
-			mOnConnect.sendMessage(message);
+			mOnConnectListener.sendMessage(message);
 			// そのようなデバイスとはペアリングしていない
 		}
 	}
@@ -141,11 +141,11 @@ public class BtSppManager extends BtManagerBase {
 
 						//できたらこれ以下の処理が走る
 						message.what = 0;
-						mOnDisConnect.sendMessage(message);
+						mOnDisConnectListener.sendMessage(message);
 						// 切断成功
 					} catch (IOException e) {
 						message.what = -1;
-						mOnDisConnect.sendMessage(message);
+						mOnDisConnectListener.sendMessage(message);
 						e.printStackTrace();
 						// 切断失敗
 					}
@@ -161,7 +161,7 @@ public class BtSppManager extends BtManagerBase {
 			// 非同期処理開始
 		} else {
 			message.what = -2;
-			mOnDisConnect.sendMessage(message);
+			mOnDisConnectListener.sendMessage(message);
 			// デバイスに接続されていないエラーを投げる
 			if (reconnect) {
 				connectDevice();

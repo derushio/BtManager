@@ -1,6 +1,7 @@
 package jp.itnav.derushio.btmanager;
 
 import android.os.Bundle;
+import android.os.Handler;
 
 import java.util.ArrayList;
 
@@ -36,6 +37,21 @@ abstract public class BtServerManagedActivity extends BtManagedActivity {
 		return mBtServerManager.isBtSocketExists();
 	}
 
+	public void startBtServer(final String btServerName) {
+		mBtServerManager.startBtServer(btServerName);
+	}
+	// Bluetooth通信をホストする
+
+	public void stopBtServer() {
+		mBtServerManager.stopBtServer();
+	}
+	// Bluetooth通信ホストを停止する
+
+	public void restartBtServer() {
+		mBtServerManager.restartBtServer();
+	}
+	// Bluetooth通信ホストを再スタートする
+
 	@Override
 	protected ArrayList<String> getMessageMailBox() {
 		if (isServerStarted()) {
@@ -52,6 +68,14 @@ abstract public class BtServerManagedActivity extends BtManagedActivity {
 		} else {
 			mBtSppManager.writeMessage(message);
 		}
+	}
+
+	protected void setOnServerConnect(Handler.Callback onConnect) {
+		mBtServerManager.setOnConnectListener(onConnect);
+	}
+
+	protected void setOnServerDisConnect(Handler.Callback onDisConnect) {
+		mBtServerManager.setOnDisConnectListener(onDisConnect);
 	}
 
 	@Override
