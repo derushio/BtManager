@@ -101,16 +101,15 @@ public class BtServerManager extends BtManagerBase {
 					try {
 						mBtSocket.close();
 						mBtServerSocket.close();
-
 						// 切断する
 
 						//できたらこれ以下の処理が走る
 						message.what = 0;
-						mOnDisConnectListener.sendMessage(message);
+						mOnDisconnectListener.sendMessage(message);
 						// 切断成功
 					} catch (IOException e) {
 						message.what = -1;
-						mOnDisConnectListener.sendMessage(message);
+						mOnDisconnectListener.sendMessage(message);
 						e.printStackTrace();
 						// 切断失敗
 					}
@@ -126,7 +125,7 @@ public class BtServerManager extends BtManagerBase {
 			// 非同期処理開始
 		} else {
 			message.what = -2;
-			mOnDisConnectListener.sendMessage(message);
+			mOnDisconnectListener.sendMessage(message);
 			// デバイスに接続されていないエラーを投げる
 			if (restart) {
 				startBtServer(mBtServerName);

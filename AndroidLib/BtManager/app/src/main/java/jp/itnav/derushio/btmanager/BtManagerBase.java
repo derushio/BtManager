@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -20,11 +21,13 @@ import java.util.UUID;
  * BluetoothSPPのうち、サーバー部分と
  * クライアント部分の共通点
  */
-public abstract class BtManagerBase {
+abstract public class BtManagerBase {
 	public static final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	protected Context mContext;
 	// Activity情報
+
+	private boolean mShowStatusToast = true;
 
 	protected BluetoothAdapter mBtAdapter;
 	protected BluetoothSocket mBtSocket;
@@ -38,8 +41,22 @@ public abstract class BtManagerBase {
 	// Bluetooth通信の受信用メールボックス
 
 	protected Handler mOnConnectListener;
-	protected Handler mOnDisConnectListener;
+	protected Handler mOnDisconnectListener;
 	// 接続時、切断時のハンドラ(どこでsendMessageしてもMainLooper{UI Thread}で実行されます)
+
+	protected Handler.Callback mOnConnectAction = new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			return false;
+		}
+	};
+
+	protected Handler.Callback mOnDisconnectAction = new Handler.Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			return false;
+		}
+	};
 
 	public BtManagerBase(Context context, int messageMailBoxLength) {
 		mContext = context;
@@ -52,51 +69,59 @@ public abstract class BtManagerBase {
 		mOnConnectListener = new Handler(new Handler.Callback() {
 			@Override
 			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-					case 1:
-						Toast.makeText(mContext, "既に接続されています", Toast.LENGTH_SHORT).show();
-						break;
-					case 0:
-						Toast.makeText(mContext, "接続完了", Toast.LENGTH_SHORT).show();
-						break;
-					case -1:
-						Toast.makeText(mContext, "Bluetooth Socketが使えません", Toast.LENGTH_SHORT).show();
-						break;
-					case -2:
-						Toast.makeText(mContext, "接続デバイスを見つけられません", Toast.LENGTH_SHORT).show();
-						break;
-					case -3:
-						Toast.makeText(mContext, "そのようなデバイスとペアリングしていません", Toast.LENGTH_SHORT).show();
-						break;
-					default:
-						Toast.makeText(mContext, "不明なエラー", Toast.LENGTH_SHORT).show();
-						break;
+				if (mShowStatusToast) {
+					switch (msg.what) {
+						case 1:
+							Toast.makeText(mContext, "既に接続されています", Toast.LENGTH_SHORT).show();
+							break;
+						case 0:
+							Toast.makeText(mContext, "接続完了", Toast.LENGTH_SHORT).show();
+							break;
+						case -1:
+							Toast.makeText(mContext, "Bluetooth Socketが使えません", Toast.LENGTH_SHORT).show();
+							break;
+						case -2:
+							Toast.makeText(mContext, "接続デバイスを見つけられません", Toast.LENGTH_SHORT).show();
+							break;
+						case -3:
+							Toast.makeText(mContext, "そのようなデバイスとペアリングしていません", Toast.LENGTH_SHORT).show();
+							break;
+						default:
+							Toast.makeText(mContext, "不明なエラー", Toast.LENGTH_SHORT).show();
+							break;
+					}
 				}
+				mOnConnectAction.handleMessage(msg);
+				// これでいいのか・・・わからんけどこれが最適？
 				return false;
 			}
 		});
 		// 接続時に何らかのメッセージを出すようにする
 
-		mOnDisConnectListener = new Handler(new Handler.Callback() {
+		mOnDisconnectListener = new Handler(new Handler.Callback() {
 			@Override
 			public boolean handleMessage(Message msg) {
-				switch (msg.what) {
-					case 0:
-						Toast.makeText(mContext, "切断完了", Toast.LENGTH_SHORT).show();
-						break;
-					case -1:
-						Toast.makeText(mContext, "切断デバイスを見つけられません", Toast.LENGTH_SHORT).show();
-						break;
-					case -2:
-						Toast.makeText(mContext, "接続していません", Toast.LENGTH_SHORT).show();
-						break;
-					case -3:
-						Toast.makeText(mContext, "接続が切れました", Toast.LENGTH_SHORT).show();
-						break;
-					default:
-						Toast.makeText(mContext, "不明なエラー", Toast.LENGTH_SHORT).show();
-						break;
+				if (mShowStatusToast) {
+					switch (msg.what) {
+						case 0:
+							Toast.makeText(mContext, "切断完了", Toast.LENGTH_SHORT).show();
+							break;
+						case -1:
+							Toast.makeText(mContext, "切断デバイスを見つけられません", Toast.LENGTH_SHORT).show();
+							break;
+						case -2:
+							Toast.makeText(mContext, "接続していません", Toast.LENGTH_SHORT).show();
+							break;
+						case -3:
+							Toast.makeText(mContext, "接続が切れました", Toast.LENGTH_SHORT).show();
+							break;
+						default:
+							Toast.makeText(mContext, "不明なエラー", Toast.LENGTH_SHORT).show();
+							break;
+					}
 				}
+
+				mOnDisconnectAction.handleMessage(msg);
 				return false;
 			}
 		});
@@ -121,7 +146,7 @@ public abstract class BtManagerBase {
 	// 何らかのデバイスに接続されているか確認
 
 	public void writeMessage(final String message) {
-		if (isDeviceConnected()) {
+		if (isBtSocketExists()) {
 			Thread write = new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -134,7 +159,7 @@ public abstract class BtManagerBase {
 						// エラーを吐く
 						Message message = new Message();
 						message.what = -3;
-						mOnDisConnectListener.sendMessage(message);
+						mOnDisconnectListener.sendMessage(message);
 						// 接続切れを検出
 					}
 				}
@@ -147,7 +172,7 @@ public abstract class BtManagerBase {
 	// メッセージを送信する
 
 	public void readMessage() {
-		if (isDeviceConnected()) {
+		if (isBtSocketExists()) {
 			Thread read = new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -158,6 +183,8 @@ public abstract class BtManagerBase {
 						BufferedReader bufferedReader = new BufferedReader(reader);
 						// 自動的に読み込んでくれるクラス(バッファの実装をしなくて良い)
 
+						Log.d("read", "start");
+
 						if (0 < mBtInputStream.available()) {
 							String message = bufferedReader.readLine();
 							// 一行読み込む
@@ -167,8 +194,8 @@ public abstract class BtManagerBase {
 								message = bufferedReader.readLine();
 								// 一行読み込む
 							}
-
 							// まとめて読み込む
+							Log.d("read", "now");
 						}
 
 					} catch (IOException e) {
@@ -177,7 +204,7 @@ public abstract class BtManagerBase {
 
 						Message message = new Message();
 						message.what = -3;
-						mOnDisConnectListener.sendMessage(message);
+						mOnDisconnectListener.sendMessage(message);
 						// 接続切れを検出 SocketClosedが吐き出される
 					}
 				}
@@ -188,7 +215,7 @@ public abstract class BtManagerBase {
 		} else {
 			Message message = new Message();
 			message.what = -3;
-			mOnDisConnectListener.sendMessage(message);
+			mOnDisconnectListener.sendMessage(message);
 			// 接続切れを検出
 		}
 	}
@@ -207,13 +234,16 @@ public abstract class BtManagerBase {
 	}
 	// メッセージを受信しているメッセージボックスを取得する
 
-	public void setOnConnectListener(Handler.Callback onConnect) {
-		this.mOnConnectListener = new Handler(onConnect);
+	public void setShowStatusToast(boolean enable) {
+		mShowStatusToast = enable;
 	}
 	// 接続時のハンドラを設定
 
-	public void setOnDisConnectListener(Handler.Callback onDisConnect) {
-		this.mOnDisConnectListener = new Handler(onDisConnect);
+	public void setOnConnectAction(Handler.Callback onConnectAction) {
+		mOnConnectAction = onConnectAction;
 	}
-	// 切断時のハンドラを設定
+
+	public void setOnDisconnectAction(Handler.Callback onDisconnectAction) {
+		mOnDisconnectAction = onDisconnectAction;
+	}
 }

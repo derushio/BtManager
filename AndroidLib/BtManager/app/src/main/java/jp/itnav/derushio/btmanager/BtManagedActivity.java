@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,7 +22,7 @@ import jp.itnav.derushio.btmanager.timer.TimerHandler;
  * BluetoothSPPを利用するときに使う機能を補完する抽象メソッド
  * 継承して使ってください
  */
-abstract public class BtManagedActivity extends Activity implements TimerHandler.OnTickListener {
+abstract public class BtManagedActivity extends Activity {
 
 	protected BtSppManager mBtSppManager;
 	// Bluetoothを管理する自作クラス
@@ -38,7 +39,14 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 
 		mBtSppManager = new BtSppManager(this, 100);
 		mReadMessageTimer = new TimerHandler();
-		mReadMessageTimer.setOnTickListener(this);
+		mReadMessageTimer.setOnTickListener(new TimerHandler.OnTickListener() {
+			@Override
+			public void onTick() {
+				if (isSocketExist()) {
+					mBtSppManager.readMessage();
+				}
+			}
+		});
 		// 初期化
 	}
 	// Activityが生成されるときに呼ばれるメソッド（一回のみ）
@@ -47,15 +55,16 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	protected void onResume() {
 		super.onResume();
 
+		if (mMessageReadFlag == true) {
+			mReadMessageTimer.timerRestart();
+			// タイマーをスタートする
+		}
+
 		if (isDeviceConnected()) {
 			connectDevice();
 			// デバイスに繋ぎ直す
 		}
 
-		if (mMessageReadFlag == true) {
-			mReadMessageTimer.timerRestart();
-			// タイマーをスタートする
-		}
 	}
 	// Activityが復活するときに呼ばれるメソッド（最初にも呼ばれる）
 
@@ -63,15 +72,16 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	protected void onPause() {
 		super.onPause();
 
+		if (mMessageReadFlag == true) {
+			mReadMessageTimer.timerStop();
+			//タイマーをストップする
+		}
+
 		if (isDeviceConnected()) {
 			disConnectDevice();
 			// デバイスを切断する
 		}
 
-		if (mMessageReadFlag == true) {
-			mReadMessageTimer.timerStop();
-			//タイマーをストップする
-		}
 	}
 	// Activityが一時停止するときに呼ばれるメソッド
 
@@ -193,20 +203,24 @@ abstract public class BtManagedActivity extends Activity implements TimerHandler
 	}
 	// メッセージを受信しているメールボックスを取得する
 
-	protected void setOnConnect(Handler.Callback onConnect) {
-		mBtSppManager.setOnConnectListener(onConnect);
-	}
-	// 接続時のハンドラを設定
 
-	protected void setOnDisConnect(Handler.Callback onDisConnect) {
-		mBtSppManager.setOnDisConnectListener(onDisConnect);
+	protected void setShowStatusToast(boolean enable) {
+		mBtSppManager.setShowStatusToast(enable);
 	}
-	// 切断時のハンドラを設定
 
-	@Override
-	public void onTick() {
-		if (isSocketExist()) {
-			mBtSppManager.readMessage();
-		}
+	protected void setOnConnectAction(final Handler.Callback onConnect) {
+		mBtSppManager.setOnConnectAction(onConnect);
+	}
+
+	protected void setOnDisConnectAction(final Handler.Callback onDisconnect) {
+		Handler.Callback callback = new Handler.Callback() {
+			@Override
+			public boolean handleMessage(Message msg) {
+				readMessageStop();
+				onDisconnect.handleMessage(msg);
+				return false;
+			}
+		};
+		mBtSppManager.setOnDisconnectAction(callback);
 	}
 }
