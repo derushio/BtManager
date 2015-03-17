@@ -15,10 +15,10 @@ import android.widget.TextView;
 
 import java.util.Set;
 
-import jp.itnav.derushio.bluetoothmanager.BluetoothManagedActivity;
+import jp.itnav.derushio.btmanager.BtManagedActivity;
 
 
-public class MainActivity extends BluetoothManagedActivity {
+public class MainActivity extends BtManagedActivity {
 	// BluetoothManagedActivityを継承している
 
 	private LinearLayout paredDeviceList;
@@ -125,7 +125,7 @@ public class MainActivity extends BluetoothManagedActivity {
 			super.handleMessage(msg);
 
 			if (isDeviceConnected()) {
-				textViewReadMessage.setText("返信：" + readMessage().get(0));
+				textViewReadMessage.setText("返信：" + getMessageMailBox().get(0));
 				// メッセージを受信する。
 				// メッセージはArrayListの受信時間順に帰ってくるので、.get(0)で最新データが取れる。
 			}
