@@ -65,7 +65,7 @@ String BTManager::readMessage() {
 }
 
 void BTManager::writeMessage(String message) {
-    btSerial.print(message);
+    btSerial.println(message);
     // 受け取ったStringをBluetoothシリアルに書き込む
 }
 
