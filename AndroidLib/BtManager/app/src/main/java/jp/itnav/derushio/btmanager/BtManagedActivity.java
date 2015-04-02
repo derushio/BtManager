@@ -203,6 +203,10 @@ abstract public class BtManagedActivity extends Activity {
 	}
 	// メッセージを受信しているメールボックスを取得する
 
+	protected void clearMessageMailBox() {
+		mBtSppManager.clearMessageMailBox();
+	}
+	// メールボックスを初期化する
 
 	protected void setShowStatusToast(boolean enable) {
 		mBtSppManager.setShowStatusToast(enable);
