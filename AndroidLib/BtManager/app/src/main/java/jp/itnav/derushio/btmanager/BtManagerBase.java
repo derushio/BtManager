@@ -234,6 +234,11 @@ abstract public class BtManagerBase {
 	}
 	// メッセージを受信しているメッセージボックスを取得する
 
+	public void clearMessageMailBox() {
+		mMessageMailBox = new ArrayList<String>(100);
+	}
+	// メールボックス初期化
+
 	public void setShowStatusToast(boolean enable) {
 		mShowStatusToast = enable;
 	}
